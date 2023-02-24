@@ -7,7 +7,7 @@ addpath(genpath('svg_reader'), genpath('basic_gui'), genpath('setup_func'));
 
 scale = 1e-9;
 model = createpde(1);
-geometry = read_geometry('example2.svg', scale, false);
+[geometry, polygon] = read_geometry('diode3.svg', scale, false);
 geometryFromEdges(model,geometry);
 geometry_model = Boundaries(geometry);
 apply_bounds(model, geometry_model.boundaries);

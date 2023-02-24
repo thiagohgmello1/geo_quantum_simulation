@@ -1,5 +1,5 @@
 function [geometry, polygons] = read_geometry(file_name, scale, draw)
-%read_geometry Read SVG file as problem geometry
+%read_geometry Read SVG file
 
 if nargin < 3
     draw = false;
@@ -24,13 +24,16 @@ polygons = resize_polygons(polygons);
 polygons = cell2mat(polygons);
 polygons(3:end) = polygons(3:end) * scale;
 geometry = decsg(polygons);
+x = polygons(3:end / 2 + 1);
+y = polygons(end / 2 + 2:end);
+polygons = [x, y];
 
 end
 
 
 function [resized_polygons] = resize_polygons(plgs)
 
-[nrows, ncolumns] = cellfun(@size,plgs);
+[nrows, ~] = cellfun(@size,plgs);
 max_rows = max(nrows);
 for i=1:length(plgs)
     if length(plgs{i}) < max_rows

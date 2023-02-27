@@ -1,4 +1,5 @@
-[hex_str, hex_poly, boundary] = fill_region(polygon, 6, 0.3 * 1e-9, [0.8, 0.6] * 1e-8);
-[nodes, hex_str] = create_nodes(hex_str);
+[polys_struct, polys, boundary] = fill_region(polygon, 6, 0.3 * 1e-9, [0.8, 0.6] * 1e-8);
+[nodes, polys_struct] = create_nodes(polys_struct);
+G = create_graph(nodes);
 
-plot_geometry(polygon,hex_poly, hex_str, nodes, true, false)
+plot_geometry(polygon, polys, polys_struct, nodes, true, false);

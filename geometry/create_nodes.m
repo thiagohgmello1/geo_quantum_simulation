@@ -5,13 +5,16 @@ function [nodes, polys_array] = create_nodes(polys_array, tol)
         tol = 1e-12;
     end
     
-    conn_order = [2, 3, 4, 5, 6, 1];
     nodes = [];
     nodes_list = [];
     n_polys = length(polys_array);
     counter = 1;
 
     for pol=1:n_polys
+        n_sides = polys_array(pol).n_sides;
+        conn_order = 1:n_sides;
+        conn_order = circshift(conn_order,-1);
+        
         vertices = polys_array(pol).vertices;
         internal_pos_vec = [];
         for vertex=1:length(vertices)

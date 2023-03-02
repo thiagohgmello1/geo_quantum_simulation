@@ -1,6 +1,6 @@
 function plot_geometry(polygon, polygons, polygons_struct, nodes, show_nodes_numbers, show_polys_numbers)
 %plot_geometry plot geometry and polygons
-
+    figure;
     plot(polygons, 'FaceColor','red')
     hold on;
     plot(polygon(:,1), polygon(:,2))

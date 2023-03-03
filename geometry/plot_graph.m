@@ -6,8 +6,10 @@ function plot_graph(G, show_names)
     end
 
     coords = vertcat(G.Nodes.coord);
+%     coords = rotate_polygon(coords, -45);
     x = coords(:,1);
     y = coords(:,2);
+
     figure;
     if show_names
         plot(G,'XData',x,'YData',y, 'NodeLabel', G.Nodes.Name);

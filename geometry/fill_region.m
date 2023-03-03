@@ -11,7 +11,7 @@ function [polys, polys_plot, boundary] = fill_region(region, poly_n_sides, poly_
     polys = [polys, pol];
     polys_plot = [polys_plot, poly_plot];
 
-    unchecked_polys = [1];
+    unchecked_polys = 1;
     centers = [pol.center];
 
     while ~isempty(unchecked_polys)

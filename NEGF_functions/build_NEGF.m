@@ -14,8 +14,8 @@ function [H, Green_r, Green_a, Green_n, A, Gamma_left, Gamma_right, Sigma_left, 
     Sigma_in_right = Gamma_right * fermi_right;
     Sigma_in = Sigma_in_left + Sigma_in_right;
     
-    Green_r = ((energy + 1i * eta) * Eye_aux - (H + U) - Sigma_right - Sigma_left) \ Eye_aux;
-    Green_n = Green_r * Sigma_in * Green_r';
-    Green_a = Green_r';
-    A = 1i * (Green_r - Green_r');
+    Green_r = ((energy + 1i * eta) * Eye_aux - (H + U) - Sigma_right - Sigma_left) \ Eye_aux; % Retarded Green's function
+    Green_n = Green_r * Sigma_in * Green_r'; % Electron density (diagonal elements)
+    Green_a = Green_r'; % Advanced Green's function
+    A = 1i * (Green_r - Green_r'); % Density of states (diagonal elements)
 end

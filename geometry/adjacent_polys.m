@@ -1,4 +1,4 @@
-function [polys, polys_plot, polys_ids, registered_centers, boundary] = adjacent_polys(central_pol, ...
+function [polys, polys_plot, polys_ids, registered_centers, is_bound] = adjacent_polys(central_pol, ...
     region, counter_id, registered_centers, poly_n_sides, poly_side_length, angle)
 %adjacent_pols Create all adjacent polygons
     
@@ -8,9 +8,9 @@ function [polys, polys_plot, polys_ids, registered_centers, boundary] = adjacent
     polys = [];
     polys_plot = [];
     polys_ids = [];
-    boundary = [];
+    is_bound = false;
     
-    [vecs, segments] = perpendicular_vecs(central_pol);
+    [vecs, ~] = perpendicular_vecs(central_pol);
     theta = pi / central_pol.n_sides;
     apotema = central_pol.len / (2 * tan(theta));
 
@@ -33,9 +33,8 @@ function [polys, polys_plot, polys_ids, registered_centers, boundary] = adjacent
             polys_plot = [polys_plot poly_plot];
             polys_ids = [polys_ids, counter_id];
             registered_centers = [registered_centers, poly.center];
-        end
-        if ~is_inside(poly.vertices, region)
-            boundary = cat(3, boundary, segments(:,:,i));
+        elseif ~is_inside(poly.vertices, region)
+            is_bound = true;
         end
     end
 end

@@ -1,4 +1,4 @@
-function [polys, polys_plot, boundary] = fill_region(region, poly_n_sides, poly_length, first_center, angle)
+function [polys, polys_plot] = fill_region(region, poly_n_sides, poly_length, first_center, angle)
 %fill_region fill specified region with polygons
     
     if nargin < 5
@@ -6,7 +6,6 @@ function [polys, polys_plot, boundary] = fill_region(region, poly_n_sides, poly_
     end
     polys = [];
     polys_plot = [];
-    boundary = [];
     [pol, poly_plot] = create_poly(1, poly_n_sides, first_center, poly_length, angle);
     polys = [polys, pol];
     polys_plot = [polys_plot, poly_plot];
@@ -16,11 +15,9 @@ function [polys, polys_plot, boundary] = fill_region(region, poly_n_sides, poly_
 
     while ~isempty(unchecked_polys)
         pos = unchecked_polys(1);
-        [polys_aux, polys_plot_aux, polys_ids_aux, centers, boundary_aux] = adjacent_polys(polys(pos), ...
+        [polys_aux, polys_plot_aux, polys_ids_aux, centers, is_bound] = adjacent_polys(polys(pos), ...
             region, unchecked_polys(end), centers, poly_n_sides, poly_length, angle);
-        if ~isempty(boundary_aux)
-            boundary = cat(3, boundary, boundary_aux);
-        end
+        polys(pos).is_bound = is_bound;
         unchecked_polys = [unchecked_polys, polys_ids_aux];
         unchecked_polys(1) = [];
         polys = [polys, polys_aux];

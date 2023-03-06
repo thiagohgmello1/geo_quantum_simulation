@@ -15,5 +15,7 @@ function [pol, polygon] = create_poly(id, n_sides, center, side_len, angle)
     pol.center = center';
     pol.vertices = vertices;
     pol.nodes = [];
+    pol.is_bound = true;
+%     pol.neig = [];
 end
 

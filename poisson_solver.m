@@ -1,6 +1,6 @@
 %% Set parameters
 
-clear all;
+clear;
 close all;
 clc;
 

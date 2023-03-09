@@ -22,7 +22,7 @@ function varargout = Boundaries(varargin)
 
 % Edit the above text to modify the response to help Boundaries
 
-% Last Modified by GUIDE v2.5 06-Feb-2023 11:00:24
+% Last Modified by GUIDE v2.5 08-Mar-2023 14:17:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,8 +53,10 @@ function Boundaries_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to Boundaries (see VARARGIN)
 
 if ~isempty(varargin)
-    handles.geometry = varargin{1};
+    handles.model = varargin{1};
+    handles.geometry = varargin{2};
     pdegplot(varargin{1},'EdgeLabels','on');
+    axis padded;
 end
 
 % Choose default command line output for Boundaries
@@ -84,15 +86,16 @@ function boundaries_cond_CloseRequestFcn(hObject, eventdata, handles)
 uiresume();
 
 
+
 % --- Outputs from this function are returned to the command line.
-function varargout = Boundaries_OutputFcn(hObject, eventdata, handles) 
+function varargout = Boundaries_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+varargout{1} = handles.model;
 delete(hObject);
 
 
@@ -104,9 +107,10 @@ function Dirichlet_bound_Callback(hObject, eventdata, handles)
 
 bound.params = Boundaries_values(1);
 if bound.params.status == true
-    bound.edges = get_edges(gcbo, handles.diric.String);
+    bound.edges = read_edit_text(gcbo, handles.diric.String);
     if ~isempty(bound.edges)
         handles.output.boundaries.dir = [handles.output.boundaries.dir, bound];
+        set(handles.diric, 'string', '');
     end
 end
 guidata(hObject, handles);
@@ -121,7 +125,7 @@ function Neumann_bound_Callback(hObject, eventdata, handles)
 
 bound.params = Boundaries_values(0);
 if bound.params.status == true
-    bound.edges = get_edges(gcbo, handles.newm.String);
+    bound.edges = read_edit_text(gcbo, handles.newm.String);
     if ~isempty(bound.edges)
         handles.output.boundaries.neu = [handles.output.boundaries.neu, bound];
     end
@@ -135,7 +139,11 @@ function Export_bound_Callback(hObject, eventdata, handles)
 % hObject    handle to Export_bound (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-boundaries_cond_CloseRequestFcn(hObject, eventdata, handles)
+
+apply_bounds(handles.model, handles.output.boundaries);
+apply_params(handles.model, handles.output.params);
+handles.output.mesh = Mesh_params(handles.model, handles.output, @apply_mesh);
+guidata(hObject, handles);
 
 
 
@@ -207,3 +215,67 @@ function def_bound_params_Callback(hObject, eventdata, handles)
 % hObject    handle to def_bound_params (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in draw_roi_dir.
+function draw_roi_dir_Callback(hObject, eventdata, handles)
+% hObject    handle to draw_roi_dir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+dir_roi = drawpolygon;
+
+edges = get_edges(handles.geometry, dir_roi);
+already_edges = read_edit_text(gcbo, handles.diric.String, false);
+if already_edges
+    edges = sort(unique([already_edges edges]));
+    edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
+end
+if edges
+    edges = sort(unique(edges));
+    edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
+    set(handles.diric, 'string', edges);
+end
+
+guidata(hObject, handles);
+delete(dir_roi);
+uiwait();
+
+
+% --- Executes on button press in draw_roi_neu.
+function draw_roi_neu_Callback(hObject, eventdata, handles)
+% hObject    handle to draw_roi_neu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+neu_roi = drawpolygon;
+
+edges = get_edges(handles.geometry, neu_roi);
+already_edges = read_edit_text(gcbo, handles.newm.String, false);
+if already_edges
+    edges = sort(unique([already_edges edges]));
+    
+    edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
+end
+if edges
+    set(handles.newm, 'string', edges);
+end
+
+guidata(hObject, handles);
+delete(neu_roi);
+uiwait();
+
+
+% --- Executes on button press in show_bounds.
+function show_bounds_Callback(hObject, eventdata, handles)
+% hObject    handle to show_bounds (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of show_bounds
+bound_status = get(hObject,'Value');
+if bound_status == true
+    bound_status = 'on';
+else
+    bound_status = 'off';
+end
+pdegplot(handles.geometry,'EdgeLabels',bound_status);
+axis padded;

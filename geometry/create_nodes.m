@@ -31,6 +31,7 @@ function [nodes, polys_array] = create_nodes(polys_array, tol)
                 nodes = [nodes, node];
             else
                 internal_pos_vec(edge) = find(check_existance);
+                nodes(check_existance).is_bound = nodes(check_existance).is_bound || polys_array(pol).is_bound;
             end
             polys_array(pol).nodes = [polys_array(pol).nodes, internal_pos_vec(edge)];
         end

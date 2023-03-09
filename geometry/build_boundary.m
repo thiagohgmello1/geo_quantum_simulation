@@ -16,6 +16,9 @@ function [G, dir_G] = build_boundary(G, dir_G, n_sides)
             end
             G.Nodes(poly_nodes(~all_bounds_status),:).bounds = false;
             G.Nodes(poly_nodes(~all_bounds_status),:).color = non_boundary_color;
+            
+            dir_G.Nodes(poly_nodes(~all_bounds_status),:).bounds = false;
+            dir_G.Nodes(poly_nodes(~all_bounds_status),:).color = non_boundary_color;
         end
     end
 end

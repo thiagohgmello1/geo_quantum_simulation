@@ -95,7 +95,7 @@ function varargout = Boundaries_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.model;
+varargout{1} = handles.output;
 delete(hObject);
 
 
@@ -128,6 +128,7 @@ if bound.params.status == true
     bound.edges = read_edit_text(gcbo, handles.newm.String);
     if ~isempty(bound.edges)
         handles.output.boundaries.neu = [handles.output.boundaries.neu, bound];
+        set(handles.newm, 'string', '');
     end
 end
 guidata(hObject, handles);
@@ -226,18 +227,14 @@ dir_roi = drawpolygon;
 
 edges = get_edges(handles.geometry, dir_roi);
 already_edges = read_edit_text(gcbo, handles.diric.String, false);
-if already_edges
-    edges = sort(unique([already_edges edges]));
-    edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
-end
 if edges
-    edges = sort(unique(edges));
+    edges = sort(unique([already_edges edges]));
     edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
     set(handles.diric, 'string', edges);
 end
 
-guidata(hObject, handles);
 delete(dir_roi);
+guidata(hObject, handles);
 uiwait();
 
 
@@ -250,17 +247,14 @@ neu_roi = drawpolygon;
 
 edges = get_edges(handles.geometry, neu_roi);
 already_edges = read_edit_text(gcbo, handles.newm.String, false);
-if already_edges
-    edges = sort(unique([already_edges edges]));
-    
-    edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
-end
 if edges
+    edges = sort(unique([already_edges edges]));
+    edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
     set(handles.newm, 'string', edges);
 end
 
-guidata(hObject, handles);
 delete(neu_roi);
+guidata(hObject, handles);
 uiwait();
 
 

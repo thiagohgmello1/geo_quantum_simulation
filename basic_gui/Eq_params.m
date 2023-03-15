@@ -72,7 +72,7 @@ for i=1:length(lbls)
       % Remove the UICONTROL
       delete(l);
       % Replace it with a TEXT object 
-      handles.(t) = text(p(1),p(2),s,'interpreter','latex','string','\fontsize{12}{0}');
+      handles.(t) = text(p(1),p(2),s,'interpreter','latex');
 end
 
 % Update handles structure

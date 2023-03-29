@@ -62,7 +62,7 @@ end
 % Choose default command line output for Boundaries
 default_eq_params.m = 0;
 default_eq_params.d = 0;
-default_eq_params.c = 1;
+default_eq_params.c = -1;
 default_eq_params.a = 0;
 default_eq_params.f = 1;
 

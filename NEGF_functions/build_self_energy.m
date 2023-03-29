@@ -12,7 +12,7 @@ function [sigma_left,sigma_right] = build_self_energy(G, epsilon, t, energy, eta
     M_right = eye(length(right_contact));
     vec_right = ones(1,length(M_right) - 1);
 
-    alpha_left = epsilon * M_left + t * diag(vec_left, 1) + t * diag(vec_left, -1);
+    alpha_left = -epsilon * M_left + t * diag(vec_left, 1) + t * diag(vec_left, -1);
     alpha_right = epsilon * M_right + t * diag(vec_right, 1) + t * diag(vec_right, -1);
 
     beta_left = t * M_left;
@@ -21,7 +21,7 @@ function [sigma_left,sigma_right] = build_self_energy(G, epsilon, t, energy, eta
     gn_left = iterate_gn(alpha_left, beta_left, energy, eta, stop_cond);
     gn_right = iterate_gn(alpha_right, beta_right, energy, eta, stop_cond);
     
-    sigma_left = beta_left * gn_left * beta_left';
+    sigma_left = beta_left' * gn_left * beta_left;
     sigma_left = complete_sigma_matrix(sigma_left, left_contact, numnodes(G));
     sigma_right = beta_right * gn_right * beta_right';
     sigma_right = complete_sigma_matrix(sigma_right, right_contact, numnodes(G));
@@ -29,10 +29,10 @@ end
 
 
 function gn = iterate_gn(alpha, beta, energy, eta, stop_cond)
-    z = (energy + 1i*eta) * eye(length(alpha)) - alpha;
+    M_aux = eye(length(alpha));
+    z = (energy + 1i*eta) * M_aux - alpha;
     change = 1;
     gn = inv(z);
-    M_aux = eye(length(alpha));
     while change > stop_cond
         B = z - beta' * gn * beta;
         gn1 = B \ M_aux;

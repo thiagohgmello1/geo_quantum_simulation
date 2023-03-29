@@ -18,7 +18,7 @@ R = L;
 L(1,1) = 1;
 R(NL, NL) = 1;
 config = 1; %1 for armchair , 2 for zigzag edge
-NW=floor (14*sqrt(3)); % Armchair
+NW=floor(14*sqrt(3)); % Armchair
 % NW = 14;% Zigzag
 
 % Hamiltonian

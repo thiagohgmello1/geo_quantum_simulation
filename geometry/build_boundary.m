@@ -14,11 +14,13 @@ function [G, dir_G] = build_boundary(G, dir_G, n_sides)
                 neighs = neighbors(G, node);
                 all_bounds_status = [all_bounds_status, all(G.Nodes(neighs,:).bounds)];
             end
-            G.Nodes(poly_nodes(~all_bounds_status),:).bounds = false;
-            G.Nodes(poly_nodes(~all_bounds_status),:).color = non_boundary_color;
+            G.Nodes(poly_nodes(~all_bounds_status),:).bounds = false * ones(sum(all_bounds_status == 0, 'all'), 1);
+            G.Nodes(poly_nodes(~all_bounds_status),:).color = ...
+                kron(ones(sum(all_bounds_status == 0, 'all'), 1),non_boundary_color);
             
-            dir_G.Nodes(poly_nodes(~all_bounds_status),:).bounds = false;
-            dir_G.Nodes(poly_nodes(~all_bounds_status),:).color = non_boundary_color;
+            dir_G.Nodes(poly_nodes(~all_bounds_status),:).bounds = false * ones(sum(all_bounds_status == 0, 'all'), 1);
+            dir_G.Nodes(poly_nodes(~all_bounds_status),:).color = ...
+                kron(ones(sum(all_bounds_status == 0, 'all'), 1),non_boundary_color);
         end
     end
 end

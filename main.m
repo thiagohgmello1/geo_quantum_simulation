@@ -49,11 +49,11 @@ else
 end
 
 % Material properties
-a = bounds.mat_props.lattice_len;
+% a = bounds.mat_props.lattice_len;
+% n_sides = bounds.mat_props.n_sides;
 t = bounds.mat_props.hoppings;
 epsilon = bounds.mat_props.onsite;
 temp = bounds.mat_props.temp;
-n_sides = bounds.mat_props.n_sides;
 
 % Convergency properties
 eta = bounds.conv_params.eta;

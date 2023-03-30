@@ -22,7 +22,7 @@ function varargout = Boundaries(varargin)
 
 % Edit the above text to modify the response to help Boundaries
 
-% Last Modified by GUIDE v2.5 29-Mar-2023 16:39:11
+% Last Modified by GUIDE v2.5 30-Mar-2023 13:41:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -305,3 +305,12 @@ else
 end
 pdegplot(handles.geometry,'EdgeLabels',bound_status);
 axis padded;
+
+
+% --------------------------------------------------------------------
+function open_file_ClickedCallback(hObject, eventdata, handles)
+% hObject    handle to open_file (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.file_name = Open_project;
+guidata(hObject, handles);

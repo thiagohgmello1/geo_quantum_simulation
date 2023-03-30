@@ -94,8 +94,9 @@ function ok_btn_Callback(hObject, eventdata, handles)
 % hObject    handle to ok_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+handles.output.file_name = str2double(handles.select_project.String);
 guidata(hObject, handles);
-Open_project_CloseRequestFcn(hObject, eventdata, handles)
+Open_project_CloseRequestFcn(hObject, eventdata, handles);
 
 
 % --- Executes when user attempts to close Open_project.

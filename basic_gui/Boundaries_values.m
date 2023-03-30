@@ -22,7 +22,7 @@ function varargout = Boundaries_values(varargin)
 
 % Edit the above text to modify the response to help Boundaries_values
 
-% Last Modified by GUIDE v2.5 03-Feb-2023 17:10:23
+% Last Modified by GUIDE v2.5 30-Mar-2023 14:35:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -66,15 +66,18 @@ else
     set(handles.h_entry, 'enable', 'off');
     set(handles.r_entry, 'enable', 'off');
     set(handles.eq_string, 'String', neu_eq);
+    set(handles.lead_eq, 'enable', 'off');
 end
 
 default_bounds.h = [];
 default_bounds.r = [];
 default_bounds.q = [];
 default_bounds.g = [];
+default_lead_eq = str2func('@(x, y) 1');
 
 % Choose default command line output for Boundaries_values
 handles.output = default_bounds;
+handles.output.lead_eq = default_lead_eq;
 handles.output.status = false;
 
 % Update handles structure
@@ -194,6 +197,8 @@ function apply_Callback(hObject, eventdata, handles)
 if strcmp(handles.bound, 'dir')
     handles.output.h = str2double(handles.h_entry.String);
     handles.output.r = str2double(handles.r_entry.String);
+    lead_eq = str2func(['@(x, y)' handles.lead_eq.String]);
+    handles.output.lead_eq = lead_eq;
 else
     handles.output.q = str2double(handles.q_entry.String);
     handles.output.g = str2double(handles.g_entry.String);
@@ -225,3 +230,27 @@ function bound_params_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 uiresume();
+
+
+
+function lead_eq_Callback(hObject, eventdata, handles)
+% hObject    handle to lead_eq (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of lead_eq as text
+%        str2double(get(hObject,'String')) returns contents of lead_eq as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function lead_eq_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to lead_eq (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

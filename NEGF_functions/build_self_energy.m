@@ -1,11 +1,11 @@
-function [sigma_left,sigma_right] = build_self_energy(G, epsilon, t, energy, eta, stop_cond)
+function [sigma_left,sigma_right] = build_self_energy(G, epsilon, t, energy, eta, stop_cond, bounds)
 %build_self_energy build self energy matrices for contacts
     
     if nargin < 6
         stop_cond = 1e-4;
     end
 
-    [left_contact, right_contact] = contact_nodes(G);
+    [left_contact, right_contact] = contact_nodes(G, bounds);
 
     M_left = eye(length(left_contact));
     vec_left = ones(1,length(M_left) - 1);

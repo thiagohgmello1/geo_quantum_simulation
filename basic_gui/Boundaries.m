@@ -22,7 +22,7 @@ function varargout = Boundaries(varargin)
 
 % Edit the above text to modify the response to help Boundaries
 
-% Last Modified by GUIDE v2.5 08-Mar-2023 14:17:36
+% Last Modified by GUIDE v2.5 29-Mar-2023 16:39:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -69,8 +69,22 @@ default_eq_params.f = 1;
 default_bound_conds.dir = [];
 default_bound_conds.neu = [];
 
+default_conv_params.eta = 10e-3;
+default_conv_params.self_e_conv = 1e-4;
+default_conv_params.max_iter = 10;
+default_conv_params.delta_U = 1e-4;
+
+default_mat_props.eq_fermi = 0.1;
+default_mat_props.temp = 300;
+default_mat_props.hoppings = -2;
+default_mat_props.onsite = 4;
+default_mat_props.n_sides = 6;
+default_mat_props.lattice_len = 1.42e-10;
+
 handles.output.boundaries = default_bound_conds;
 handles.output.params = default_eq_params;
+handles.output.conv_params = default_conv_params;
+handles.output.mat_props = default_mat_props;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -208,6 +222,24 @@ function Eq_params_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.output.params = Eq_params;
+guidata(hObject, handles);
+
+
+% --------------------------------------------------------------------
+function Mat_prop_Callback(hObject, eventdata, handles)
+% hObject    handle to Mat_prop (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.output.mat_props = Mat_props;
+guidata(hObject, handles);
+
+
+% --------------------------------------------------------------------
+function Conv_params_Callback(hObject, eventdata, handles)
+% hObject    handle to Conv_params (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+handles.output.conv_params = Conv_params;
 guidata(hObject, handles);
 
 

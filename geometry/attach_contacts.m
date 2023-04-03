@@ -1,6 +1,6 @@
-function [outputArg1,outputArg2] = attach_contacts(dir_vec)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
+function G_leads = attach_contacts(nodes, G)
+%attach_contacts attach contacts to system
+    
+    [undir_G, dir_G] = create_graph(nodes, 6, 'name_offset', numnodes(G));
+    
 end

@@ -1,6 +1,6 @@
 function edges = get_edges(geometry, roi)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%get_edges Select edges inside ROI region
+
     edges = [];
     edges_len = size(geometry, 2);
     for i=1:edges_len

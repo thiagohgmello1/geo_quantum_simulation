@@ -1,9 +1,16 @@
-function [are_close] = is_close(a, b, rtol)
+function [close_points] = is_close(a, b, varargin)
 %is_close check if two numbers are close
+    defaultRTol = 1e-5;
+    defaultATol = 0;
 
-    if nargin < 3
-        rtol = 1e-5;
-    end
-    are_close = abs(a - b) <= rtol * max([abs(a), abs(b)]);
+    p = inputParser;
+    validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x >= 0);
+    addRequired(p,'a');
+    addRequired(p,'b');
+    addOptional(p, 'rtol', defaultRTol, validScalarPosNum);
+    addOptional(p, 'atol', defaultATol, validScalarPosNum);
+    parse(p, a , b, varargin{:});
+
+    close_points = abs(a - b) <= p.Results.rtol * max([abs(a); abs(b)]) + p.Results.atol;
 end
 

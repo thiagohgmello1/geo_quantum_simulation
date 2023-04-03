@@ -55,6 +55,8 @@ function Boundaries_OpeningFcn(hObject, eventdata, handles, varargin)
 if ~isempty(varargin)
     handles.model = varargin{1};
     handles.geometry = varargin{2};
+    handles.G = varargin{3};
+    handles.map_edges = map_edges(handles.G, handles.geometry);
     pdegplot(varargin{1},'EdgeLabels','on');
     axis padded;
 end
@@ -122,6 +124,7 @@ function Dirichlet_bound_Callback(hObject, eventdata, handles)
 bound.params = Boundaries_values(1);
 if bound.params.status == true
     bound.edges = read_edit_text(gcbo, handles.diric.String);
+    bound.nodes = handles.nodes;
     if ~isempty(bound.edges)
         handles.output.boundaries.dir = [handles.output.boundaries.dir, bound];
         set(handles.diric, 'string', '');
@@ -262,6 +265,7 @@ already_edges = read_edit_text(gcbo, handles.diric.String, false);
 if edges
     edges = sort(unique([already_edges edges]));
     edges = cell2mat(join(arrayfun(@num2str, edges, 'UniformOutput', false), ','));
+    handles.nodes = get_nodes(handles.map_edges, edges);
     set(handles.diric, 'string', edges);
 end
 

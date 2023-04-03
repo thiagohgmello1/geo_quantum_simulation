@@ -7,7 +7,7 @@ clc;
 addpath(genpath('svg_reader'), genpath('basic_gui'), genpath('setup_func'),...
     genpath('geometry'), genpath('NEGF_functions'), genpath('solvers'));
 
-TEST = false;
+TEST = true;
 
 % Constants
 a = 1.42e-10;
@@ -40,7 +40,7 @@ if TEST
 else
     model = createpde(1);
     geometryFromEdges(model, geometry);
-    bounds = Boundaries(model, geometry);
+    bounds = Boundaries(model, geometry, G);
     results = poisson_solver(model);
     figure;
     pdeplot(model,'XYData',results.NodalSolution);
@@ -70,6 +70,19 @@ energy_n = mu_left + 4 * kB * temp;
 energy_points = 100;
 delta_energy = (energy_n - energy_1) / energy_points;
 energy_vec = t * linspace(energy_1, energy_n, energy_points);
+
+%% Create contacts
+contacts_nodes = [];
+contacts_polys_plot = [];
+counter_offset = 0;
+for dir_bound=bounds.boundaries.dir
+    [contact, contact_plot] = create_contact(G, dir_bound, n_sides, a, counter_offset);
+    contacts_nodes = [contacts_nodes contact];
+    contacts_polys_plot = [contacts_polys_plot contact_plot];
+    counter_offset = counter_offset + length(contacts_nodes);
+end
+contacts = attach_contacts(contacts_nodes, G);
+
 
 %% Quantum parameters
 H = build_H(dir_G, epsilon, t);

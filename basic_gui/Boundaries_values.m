@@ -73,13 +73,12 @@ default_bounds.h = [];
 default_bounds.r = [];
 default_bounds.q = [];
 default_bounds.g = [];
-default_lead_eq = str2func('@(x, y) 1');
+default_contact_eq = str2func('@(x, y) 1');
 
 % Choose default command line output for Boundaries_values
 handles.output = default_bounds;
-handles.output.lead_eq = default_lead_eq;
+handles.output.lead_eq = default_contact_eq;
 handles.output.status = false;
-
 % Update handles structure
 guidata(hObject, handles);
 uiwait();

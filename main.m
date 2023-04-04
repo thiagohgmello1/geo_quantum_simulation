@@ -18,6 +18,7 @@ eq_fermi_energy = 0.1;
 kB = 8.6173324 * 1e-5; % Boltzmann constant in eV/K
 
 % Material properties
+graphene_angle = 90;
 n_sides = 6;
 
 % Convergency parameters
@@ -72,16 +73,16 @@ delta_energy = (energy_n - energy_1) / energy_points;
 energy_vec = t * linspace(energy_1, energy_n, energy_points);
 
 %% Create contacts
-contacts_nodes = [];
-contacts_polys_plot = [];
 counter_offset = 0;
+contacts = {};
 for dir_bound=bounds.boundaries.dir
-    [contact, contact_plot] = create_contact(G, dir_bound, n_sides, a, counter_offset);
-    contacts_nodes = [contacts_nodes contact];
-    contacts_polys_plot = [contacts_polys_plot contact_plot];
-    counter_offset = counter_offset + length(contacts_nodes);
+    [contact, contact_plot] = create_contact(G, dir_bound, n_sides, a, 'angle', graphene_angle);
+    [undir_cont_G, ~] = create_graph(contact, n_sides, 'name_offset', numnodes(G));
+    contacts{end + 1} = undir_cont_G;
 end
-contacts = attach_contacts(contacts_nodes, G);
+
+%%
+attach_contacts(contacts, G)
 
 
 %% Quantum parameters

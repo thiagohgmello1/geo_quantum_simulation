@@ -1,5 +1,20 @@
-function [nodes, polys_plot] = create_contact(G, dir_bound, n_sides, a, counter_offset)
+function [nodes, polys_plot] = create_contact(G, dir_bound, n_sides, a, varargin)
 %create_contact Create contact according boundary equation
+    
+    defaultCounterOff = 0;
+    defaultAngle = 0;
+    p = inputParser;
+    validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
+    addRequired(p,'G');
+    addRequired(p,'dir_bound');
+    addRequired(p,'n_sides', validScalarPosNum);
+    addRequired(p,'a');
+    addOptional(p, 'counter_offset', defaultCounterOff);
+    addOptional(p, 'angle', defaultAngle);
+    parse(p, G, dir_bound, n_sides, a, varargin{:});
+
+    angle = p.Results.angle;
+    counter_offset = p.Results.counter_offset;
 
     new_centers = [];
     theta = (n_sides - 2) * pi / (2 * n_sides);
@@ -13,13 +28,13 @@ function [nodes, polys_plot] = create_contact(G, dir_bound, n_sides, a, counter_
             new_centers = [new_centers; create_centers(p0, p1, G, center, theta, a)];
         end
     end
-    is_unique = unique_tol(new_centers, 'radius_tol', 1e-10);
+    is_unique = unique_tol(new_centers, 'radius_tol', a / 2);
     new_centers = new_centers(is_unique,:);
     
     id_counter = 1 + counter_offset;
-    [polys, polys_plot] = create_polys(new_centers, dir_bound.params.lead_eq, id_counter, n_sides, a);
+    [polys, polys_plot] = create_polys(new_centers, dir_bound.params.lead_eq, id_counter, n_sides, a, angle);
     [nodes, ~] = create_nodes(polys, 'counter', id_counter);
-    is_unique_node = unique_tol(vertcat(nodes.coord), 'radius_tol', 1e-10);
+    is_unique_node = unique_tol(vertcat(nodes.coord), 'radius_tol', a / 2);
     nodes = nodes(is_unique_node);
 end
 
@@ -48,11 +63,11 @@ function new_center = check_centers(centers, G, a)
 end
 
 
-function [polys, polys_plot] = create_polys(new_centers, func, id_counter, n_sides, a)
+function [polys, polys_plot] = create_polys(new_centers, func, id_counter, n_sides, a, angle)
     polys = [];
     polys_plot = [];
     for i=1:length(new_centers)
-        [pol, pol_plot] = create_poly(id_counter, n_sides, new_centers(i,:), a, 90);
+        [pol, pol_plot] = create_poly(id_counter, n_sides, new_centers(i,:), a, 'angle', angle);
         pol_tab = table(pol.vertices(:,1), pol.vertices(:,2));
         if all(rowfun(func, pol_tab).(1))
             polys = [polys pol];

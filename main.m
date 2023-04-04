@@ -73,16 +73,18 @@ delta_energy = (energy_n - energy_1) / energy_points;
 energy_vec = t * linspace(energy_1, energy_n, energy_points);
 
 %% Create contacts
-counter_offset = 0;
-contacts = {};
+name_offset = numnodes(G);
+G_contacts = {};
 for dir_bound=bounds.boundaries.dir
     [contact, contact_plot] = create_contact(G, dir_bound, n_sides, a, 'angle', graphene_angle);
-    [undir_cont_G, ~] = create_graph(contact, n_sides, 'name_offset', numnodes(G));
-    contacts{end + 1} = undir_cont_G;
+    [undir_cont_G, ~] = create_graph(contact, n_sides, 'name_offset', name_offset);
+    name_offset = name_offset + numnodes(undir_cont_G);
+%     [undir_cont_G, ~] = create_graph(contact, n_sides);
+    G_contacts{end + 1} = undir_cont_G;
 end
 
 %%
-attach_contacts(contacts, G)
+G_contact = attach_contacts(G_contacts, G, a);
 
 
 %% Quantum parameters

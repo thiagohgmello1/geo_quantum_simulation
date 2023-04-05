@@ -1,5 +1,5 @@
 function [rho, Gamma_left, Gamma_right, Green_r, Green_n, Green_a, A, V] = ...
-    quantum_solver(G, H, results, energy_range, delta_energy, mu_left, mu_right, temp, epsilon, t, eta, stop_cond, bounds)
+    quantum_solver(G, H, results, energy_range, delta_energy, mu_left, mu_right, temp, epsilon, t, eta, stop_cond, bounds, G_contact)
 %quantum_solver solver the quantum problem
 
     rho = zeros(numnodes(G));
@@ -11,7 +11,7 @@ function [rho, Gamma_left, Gamma_right, Green_r, Green_n, Green_a, A, V] = ...
         fermi_right = fermi_level(energy, mu_right, temp);
     
         [Gamma_left, Gamma_right, Sigma_left, Sigma_right, Sigma_in_left, Sigma_in_right] = ...
-            build_NEGF(G, epsilon, t, energy, eta, stop_cond, fermi_left, fermi_right, bounds);
+            build_NEGF(G, epsilon, t, energy, eta, stop_cond, fermi_left, fermi_right, bounds, G_contact);
         
         [Green_r, Green_n, Green_a, A] = build_greens_params(G, ...
             energy, eta, H, U, Sigma_right, Sigma_left, Sigma_in_left, Sigma_in_right);

@@ -32,6 +32,7 @@ end
 
 
 function G_concat = concat_graphs(G_contacts, G)
+    func_counter = int8(0);
     G_matrix = full(adjacency(G));
     channel_color = [0 0 1];
     contact_color = [1 0 0];
@@ -39,23 +40,28 @@ function G_concat = concat_graphs(G_contacts, G)
     coords = G.Nodes.coord;
     colors = repmat(channel_color, length(names), 1);
     contacts = false(length(names), 1);
+    func = zeros(length(names), 1);
 
     for contact=G_contacts
+        func_counter = func_counter + int8(1);
         G_len = length(G_matrix);
         G_contact = contact{1};
         contact_len = numnodes(G_contact);
         contact_matrix = full(adjacency(G_contact));
         G_matrix(G_len+1:contact_len+G_len,G_len+1:contact_len+G_len) = contact_matrix;
+
         names = [names; G_contact.Nodes.Name];
         coords = [coords; G_contact.Nodes.coord];
         colors = [colors; repmat(contact_color, length(G_contact.Nodes.coord), 1);];
         contacts = [contacts; true(length(G_contact.Nodes.coord), 1)];
+        func = [func; repmat(func_counter, length(G_contact.Nodes.coord), 1)];
     end
     G_concat = graph(G_matrix);
     G_concat.Nodes.Name = names;
     G_concat.Nodes.coord = coords;
     G_concat.Nodes.color = colors;
     G_concat.Nodes.cont = contacts;
+    G_concat.Nodes.func_id = func;
 end
 
 

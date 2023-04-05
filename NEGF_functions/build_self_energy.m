@@ -1,8 +1,23 @@
-function [sigma_left,sigma_right] = build_self_energy(G, epsilon, t, energy, eta, stop_cond, bounds)
+function [sigma_left,sigma_right] = build_self_energy(G, epsilon, t, energy, eta, stop_cond, bounds, G_contact)
 %build_self_energy build self energy matrices for contacts
     
-    if nargin < 6
-        stop_cond = 1e-4;
+    stop_cond = 1e-4;
+
+    
+    func_ids = unique([G_contact.Nodes.func_id]);
+    contacts_ids = func_ids(func_ids ~= int8(0));
+    
+    for cont_id=contacts_ids'
+        channel_nodes = bounds.boundaries.dir(cont_id).nodes;
+        cont_nodes = G_contact.Nodes.Name(G_contact.Nodes.func_id == cont_id);
+        H_contact = subgraph(G_contact, cont_nodes);
+        M = full(adjacency(H_contact));
+        beta = triu(M, 1) * t;
+        alpha = eye(length(M)) * epsilon;
+        conn_channel_nodes = find_channel_contacts(G_contact, cont_nodes);
+        tau = build_tau(channel_nodes, conn_channel_nodes, length(channel_nodes), numnodes(H_contact), cont_nodes, t);
+        gn = iterate_gn(alpha, beta, energy, eta, stop_cond);
+        sigma = tau * gn * tau';
     end
 
     [left_contact, right_contact] = contact_nodes(G, bounds);
@@ -53,6 +68,31 @@ function sigma = complete_sigma_matrix(partial_sigma, real_pos, sigma_len)
     end
 end
 
+
+function channel_nodes = find_channel_contacts(G_contact, cont_nodes)
+    channel_nodes = [];
+    for cont_node=str2num(cell2mat(cont_nodes))'
+        neigs = neighbors(G_contact, string(cont_node));
+        for neig=neigs'
+            channel = find(and(contains(G_contact.Nodes.Name, neig), (G_contact.Nodes.func_id == int8(0))));
+            ch = [channel, cont_node];
+            if channel
+                channel_nodes = [channel_nodes; ch];
+            end
+            
+        end
+    end
+end
+
+
+function tau = build_tau(channel_nodes, conn_channel_nodes, channel_size, contact_size, cont_nodes, t)
+    tau = zeros(channel_size, contact_size);
+    [~, channel_pos] = ismember(conn_channel_nodes(:,1), channel_nodes);
+    [~, cont_pos] = ismember(conn_channel_nodes(:,2), str2num(cell2mat(cont_nodes)));
+    for i=1:length(channel_pos)
+        tau(channel_pos(i), cont_pos(i)) = t';
+    end
+end
 
 
 

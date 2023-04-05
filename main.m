@@ -77,15 +77,14 @@ name_offset = numnodes(G);
 G_contacts = {};
 for dir_bound=bounds.boundaries.dir
     [contact, contact_plot] = create_contact(G, dir_bound, n_sides, a, 'angle', graphene_angle);
-    [undir_cont_G, ~] = create_graph(contact, n_sides, 'name_offset', name_offset);
-    name_offset = name_offset + numnodes(undir_cont_G);
+    [G_undir_cont, ~] = create_graph(contact, n_sides, 'name_offset', name_offset);
+    name_offset = name_offset + numnodes(G_undir_cont);
 %     [undir_cont_G, ~] = create_graph(contact, n_sides);
-    G_contacts{end + 1} = undir_cont_G;
+    G_contacts{end + 1} = G_undir_cont;
 end
 
 %%
 G_contact = attach_contacts(G_contacts, G, a);
-
 
 %% Quantum parameters
 H = build_H(dir_G, epsilon, t);
@@ -96,7 +95,7 @@ V_prev = 0;
 while V_diff > U_tol && iter_counter < max_iter
     [rho, Gamma_left, Gamma_right, Green_r, Green_n, Green_a, A, V] = ...
     quantum_solver(G, H, results, energy_vec, delta_energy, mu_left,...
-    mu_right, temp, epsilon, t, eta, stop_cond, bounds);
+    mu_right, temp, epsilon, t, eta, stop_cond, bounds, G_contact);
 
     results = poisson_solver(model, e_0, G, a, real(diag(rho)));
 

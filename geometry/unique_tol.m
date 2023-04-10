@@ -10,14 +10,17 @@ function is_unique = unique_tol(A, varargin)
 
     is_unique = true(1, length(A));
 
-    for i=1:(length(A) - 1)
-        for j=(i + 1):length(A)
-            if circle(A(i,:), A(j,:), p.Results.radius_tol)
-                is_unique(j) = false;
+    if size(A, 1) > 1
+        for i=1:(length(A) - 1)
+            for j=(i + 1):length(A)
+                if circle(A(i,:), A(j,:), p.Results.radius_tol)
+                    is_unique(j) = false;
+                end
             end
         end
+    else
+        is_unique = true;
     end
-
 end
 
 function inside = circle(c, p, r)

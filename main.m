@@ -7,7 +7,7 @@ clc;
 addpath(genpath('svg_reader'), genpath('basic_gui'), genpath('setup_func'),...
     genpath('geometry'), genpath('NEGF_functions'), genpath('solvers'));
 
-TEST = true;
+TEST = false;
 
 % Constants
 a = 1.42e-10;
@@ -76,11 +76,8 @@ energy_vec = t * linspace(energy_1, energy_n, energy_points);
 name_offset = numnodes(G);
 G_contacts = {};
 for dir_bound=bounds.boundaries.dir
-    [contact, contact_plot] = create_contact(G, dir_bound, n_sides, a, 'angle', graphene_angle);
-    [G_undir_cont, ~] = create_graph(contact, n_sides, 'name_offset', name_offset);
-    name_offset = name_offset + numnodes(G_undir_cont);
-%     [undir_cont_G, ~] = create_graph(contact, n_sides);
-    G_contacts{end + 1} = G_undir_cont;
+    G_contact = create_contact(G, dir_bound, n_sides, a, 'angle', graphene_angle);
+    G_contacts{end + 1} = G_contact;
 end
 
 %%

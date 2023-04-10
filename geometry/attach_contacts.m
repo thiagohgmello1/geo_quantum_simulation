@@ -75,7 +75,7 @@ end
 
 function G = remove_repeated_nodes(G, repeated_nodes)
     for node=repeated_nodes
-        G = rmnode(G,node{1});
+        G = rmnode(G, node{1});
     end
 end
 

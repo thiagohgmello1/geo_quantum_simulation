@@ -1,4 +1,4 @@
-function node = create_node(coordinates, id, is_bound, center)
+function node = create_node(coordinates, id, is_bound, center, center_id)
 %create_node create nodes from polygon edges
 
     node = {};
@@ -8,5 +8,6 @@ function node = create_node(coordinates, id, is_bound, center)
     node.is_bound = is_bound;
     node.color = [0, 0, 1];
     node.center = center';
+    node.center_id = center_id;
 end
 

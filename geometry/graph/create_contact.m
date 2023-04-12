@@ -2,6 +2,8 @@ function G_contact = create_contact(G, dir_bound, n_sides, a, varargin)
 %create_contact Create contact according boundary equation
     
     defaultAngle = 0;
+    defaultIdOffset  = 1;
+    defaultCenterIdOffset = 0;
     p = inputParser;
     validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
     addRequired(p,'G');
@@ -9,10 +11,15 @@ function G_contact = create_contact(G, dir_bound, n_sides, a, varargin)
     addRequired(p,'n_sides', validScalarPosNum);
     addRequired(p,'a');
     addOptional(p, 'angle', defaultAngle);
+    addOptional(p, 'id_offset', defaultIdOffset);
+    addOptional(p, 'center_id_offset', defaultCenterIdOffset);
     parse(p, G, dir_bound, n_sides, a, varargin{:});
 
     angle = p.Results.angle;
     new_centers = [];
+    id_offset = p.Results.id_offset;
+    center_id_offset = p.Results.center_id_offset;
+
     theta = (n_sides - 2) * pi / (2 * n_sides);
     for node=dir_bound.nodes
         p0 = G.Nodes(node,:).coord;
@@ -36,7 +43,7 @@ function G_contact = create_contact(G, dir_bound, n_sides, a, varargin)
     regis_centers = unique_tol(G.Nodes.center, 'radius_tol', a / 2);
     regis_centers = G.Nodes.center(regis_centers,:);
     [G_contact, ~] = set_quantum_geometry(dir_bound.params.lead_eq, n_sides,...
-        a, first_poly.center', regis_centers, angle);
+        a, first_poly.center', regis_centers, angle, id_offset, center_id_offset);
 end
 
 

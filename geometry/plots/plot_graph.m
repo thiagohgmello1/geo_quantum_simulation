@@ -20,9 +20,10 @@ function plot_graph(G, varargin)
     end
 
     if p.Results.show_names
-        plot(G,'XData',x,'YData',y, 'NodeLabel', G.Nodes.Name, 'NodeColor', nodes_colors);
+        plot(G,'XData',x,'YData',y, 'NodeLabel', G.Nodes.Name, 'NodeColor', nodes_colors, 'MarkerSize', 6, 'EdgeColor', 'black');
     else
         plot(G,'XData',x,'YData',y, 'NodeColor', nodes_colors);
     end
+    axis equal;
 end
 

@@ -1,0 +1,6 @@
+svg_reader
+basic_gui
+setup_func
+geometry
+NEGF_functions
+solvers

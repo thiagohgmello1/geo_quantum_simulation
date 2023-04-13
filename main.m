@@ -4,26 +4,12 @@ clear;
 % close all;
 clc;
 
-addpath(genpath('svg_reader'), genpath('basic_gui'), genpath('setup_func'),...
-    genpath('geometry'), genpath('NEGF_functions'), genpath('solvers'));
+change_paths('folder_paths.txt', 1);
 
 TEST = false;
 
-% Constants
-a = 1.42e-10;
-e_0 = 1 / (36 * pi * 1e9);
-q = -1.60217663 * 1e-19;
-scale = 1e-9;
-eq_fermi_energy = 0.1;
-kB = 8.6173324 * 1e-5; % Boltzmann constant in eV/K
-energy_points = 100;
-
-% Material properties
-graphene_angle = 90;
-n_sides = 6;
-
-% Convergency parameters
-geometry_angle = 0;
+% Load constants
+constants;
 
 %% Graph generation
 
@@ -38,7 +24,7 @@ end
 %% input parameters
 
 if TEST
-    load('tests/rectangle_sol.mat');
+    load('tests/rectangle_general.mat');
 else
     model = createpde(1);
     geometryFromEdges(model, geometry);
@@ -86,16 +72,9 @@ while V_diff > U_tol && iter_counter < max_iter
     iter_counter = iter_counter + 1;
 end
 
+%% Remove additional paths
 
-
-%%
-
-rmpath('svg_reader');
-rmpath('basic_gui');
-rmpath('setup_func');
-rmpath('geometry');
-rmpath('NEGF_functions');
-rmpath('solvers');
+change_paths('folder_paths.txt', 2);
 
 %% Plot scatter
 pos = G.Nodes.coord;

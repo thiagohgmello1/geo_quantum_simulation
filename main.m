@@ -50,6 +50,7 @@ contact_trans_dir = vertcat(contact_trans_dir.trans_dir);
 
 %% Attach contacts to channel
 G_complete = attach_contacts(G_contacts, G, a);
+[G_concat] = concat_graphs(G_contacts_dir);
 
 %% Define periodic contact structures
 [alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a);

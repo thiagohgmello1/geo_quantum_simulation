@@ -12,7 +12,11 @@ function [undir_G, dir_G] = create_graph(nodes, n_sides, varargin)
 
     id_offset = p.Results.id_offset;
     
-    total_nodes = length(nodes);
+    if isa(nodes, "table")
+        total_nodes = height(nodes);
+    else
+        total_nodes = length(nodes);
+    end
     undir_graph_matrix = zeros(total_nodes);
     dir_graph_matrix = zeros(total_nodes);
     node_names = (1:total_nodes) + id_offset;

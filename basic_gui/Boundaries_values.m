@@ -22,7 +22,7 @@ function varargout = Boundaries_values(varargin)
 
 % Edit the above text to modify the response to help Boundaries_values
 
-% Last Modified by GUIDE v2.5 06-Apr-2023 16:18:27
+% Last Modified by GUIDE v2.5 13-Apr-2023 14:25:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -67,6 +67,7 @@ else
     set(handles.r_entry, 'enable', 'off');
     set(handles.eq_string, 'String', neu_eq);
     set(handles.lead_eq, 'enable', 'off');
+    set(handles.trans_dir, 'enable', 'off');
 end
 
 default_bounds.h = [];
@@ -74,10 +75,12 @@ default_bounds.r = [];
 default_bounds.q = [];
 default_bounds.g = [];
 default_contact_eq = str2func('@(x, y) 1');
+default_trans_dir = [1, 0];
 
 % Choose default command line output for Boundaries_values
 handles.output = default_bounds;
 handles.output.lead_eq = default_contact_eq;
+handles.output.trans_dir = default_trans_dir;
 handles.output.status = false;
 % Update handles structure
 guidata(hObject, handles);
@@ -198,6 +201,7 @@ if strcmp(handles.bound, 'dir')
     handles.output.r = str2double(handles.r_entry.String);
     lead_eq = str2func(['@(x, y)' handles.lead_eq.String]);
     handles.output.lead_eq = lead_eq;
+    handles.output.trans_dir = str2num(handles.trans_dir.String);
 else
     handles.output.q = str2double(handles.q_entry.String);
     handles.output.g = str2double(handles.g_entry.String);
@@ -247,6 +251,28 @@ function lead_eq_CreateFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function trans_dir_Callback(hObject, eventdata, handles)
+% hObject    handle to trans_dir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of trans_dir as text
+%        str2double(get(hObject,'String')) returns contents of trans_dir as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function trans_dir_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to trans_dir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.

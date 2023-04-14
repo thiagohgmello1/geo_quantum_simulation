@@ -1,23 +1,81 @@
-function [alpha, beta, tau] = def_periodic_structures(G, nodes, n_sides)
+function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a)
 %def_periodic_structures calculate periodic structures in contacts
-
-    for node=nodes
-        neigs = neighbors(G, string(node));
-        neig = get_contact_neigs(G, neigs);
-        for neig=neigs
-            allpaths(G, '26', '37', 'MaxPathLength', n_sides)
-        end
-
+    alpha = [];
+    beta = [];
+    tau = [];
+    all_regions = unique(G.Nodes.contact_id);
+    contact_ids = all_regions(all_regions ~= 0);
+    for i=1:length(contact_ids)
+        H = create_subregions(G, contact_ids(i,:));
+        bound_nodes = H.Nodes(H.Nodes.bound == 1,1:2);
+        trans_dir = contact_trans_dir(i,:);
+        chosen_candidates = find_period(H, bound_nodes, trans_dir, a);
     end
     
 end
 
-function contact_neigs = get_contact_neigs(G, neigs)
-    contact_neigs = [];
-    for neig=neigs'
-        neig_properties = G.Nodes(findnode(G, neig),:);
-        if neig_properties.cont
-            contact_neigs = [contact_neigs neig];
+
+function chosen_candidates = find_period(H, bound_nodes, trans_dir, a)
+    chosen_candidates = [];
+    quadrature_dir = find(~trans_dir);
+    quadrature_coords = H.Nodes.coord(:, quadrature_dir);
+    [~, min_quadrature_coord_pos] = min(bound_nodes.coord(:, quadrature_dir));
+    min_node = bound_nodes(min_quadrature_coord_pos, :);
+    visited_nodes = [min_node.Name{1}];
+    period_candidates = H.Nodes(is_close(quadrature_coords, ...
+        min_node.coord(quadrature_dir), 'rtol', 0, 'atol', a / 10),:);
+
+    while length(visited_nodes) < height(period_candidates)
+        [next_candidate, visited_nodes] = choose_closer_candidate(...
+            period_candidates, min_node, trans_dir, visited_nodes);
+        [candidate_status, chosen_candidates] = check_candidate(H, bound_nodes, next_candidate, min_node, a);
+        if candidate_status
+            break;
         end
     end
 end
+
+
+function [next_candidate, visited_nodes] = choose_closer_candidate(...
+    period_candidates, min_node, trans_dir, visited_nodes)
+    dir_vectors = period_candidates.coord - min_node.coord;
+    dir_vectors_cell = mat2cell(dir_vectors, ones(1, size(dir_vectors, 1)), 2);
+    dot_prod = cellfun(@(v) dot(v, trans_dir), dir_vectors_cell);
+    [~, min_ordering] = sortrows(dot_prod);
+    right_dir = sign(dot_prod) > 0;
+    non_checked_nodes = ~arrayfun(@(str) ismember(str, visited_nodes), period_candidates.Name);
+    for i=min_ordering'
+        if right_dir(i) && non_checked_nodes(i)
+            candidate_name = period_candidates.Name(i);
+            visited_nodes = [visited_nodes; candidate_name{1}];
+            break;
+        end
+    end
+    next_candidate = period_candidates(i,:);
+end
+
+
+function [candidate_status, chosen_candidates] = check_candidate(...
+    H, bound_nodes, candidate, min_node, a)
+    diff_candidate = candidate.coord - min_node.coord;
+    translated_bound = bound_nodes.coord + diff_candidate;
+    checked_nodes = {};
+    chosen_candidates = [];
+    for i=1:length(translated_bound)
+        bound_node = translated_bound(i,:);
+        correspondence_node = all(is_close(H.Nodes.coord, bound_node, 'rtol', 0, 'atol', a / 10), 2);
+        if any(correspondence_node)
+            new_node = H.Nodes.Name(find(correspondence_node));
+            chosen_candidates = [chosen_candidates string(new_node{1})];
+            checked_nodes{end + 1} = [string(bound_nodes.Name{i}), string(new_node{1})];
+        else
+            break
+        end
+    end
+    if length(checked_nodes) < height(bound_nodes)
+        candidate_status = false;
+    else
+        candidate_status = true;
+    end
+end
+

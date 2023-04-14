@@ -6,4 +6,7 @@ function H = create_subregions(G, region_id)
     for i=1:reg_qty
         H{i} = subgraph(G, find(G.Nodes.contact_id == region_id(i)));
     end
+    if length(H) == 1
+        H = H{1};
+    end
 end

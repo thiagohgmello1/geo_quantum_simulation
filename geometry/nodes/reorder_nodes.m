@@ -1,8 +1,24 @@
-function nodes = reorder_nodes(nodes)
+function nodes = reorder_nodes(nodes, varargin)
 %reorder_nodes reorder nodes according physical positions
+    
+    defaultReorderDir = [1, 0];
+
+    p = inputParser;
+    addRequired(p, 'nodes');
+    addOptional(p, 'reorder_dir', defaultReorderDir);
+    parse(p, nodes, varargin{:});
+    reorder_dir = p.Results.reorder_dir;
+    
+    if sign(reorder_dir(reorder_dir > 0)) > 0
+        ordering = 'ascend';
+    else
+        ordering = 'descend';
+    end
+
+    dir = [1, 1] .* reorder_dir + [2, 2] .* (~reorder_dir);
 
     nodes_coords = vertcat(nodes.coord);
-    [~, idx] = sortrows(nodes_coords,[1 2]);
+    [~, idx] = sortrows(nodes_coords, dir, {ordering 'ascend'});
     
     for node_id=1:length(nodes)
         node = nodes(node_id);

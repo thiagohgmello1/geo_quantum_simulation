@@ -1,4 +1,4 @@
-function G_contact = create_contact(G, dir_bound, n_sides, a, varargin)
+function [G_contact, G_contact_dir] = create_contact(G, dir_bound, n_sides, a, varargin)
 %create_contact Create contact according boundary equation
     
     defaultAngle = 0;
@@ -42,8 +42,8 @@ function G_contact = create_contact(G, dir_bound, n_sides, a, varargin)
     end
     regis_centers = unique_tol(G.Nodes.center, 'radius_tol', a / 2);
     regis_centers = G.Nodes.center(regis_centers,:);
-    [G_contact, ~] = set_quantum_geometry(dir_bound.params.lead_eq, n_sides,...
-        a, first_poly.center', regis_centers, angle, id_offset, center_id_offset);
+    [G_contact, G_contact_dir] = set_quantum_geometry(dir_bound.params.lead_eq, n_sides,...
+        a, first_poly.center', regis_centers, angle, id_offset, center_id_offset, dir_bound.params.trans_dir);
 end
 
 

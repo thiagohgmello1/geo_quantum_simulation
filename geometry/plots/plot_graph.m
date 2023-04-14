@@ -20,10 +20,15 @@ function plot_graph(G, varargin)
     end
 
     if p.Results.show_names
-        plot(G,'XData',x,'YData',y, 'NodeLabel', G.Nodes.Name, 'NodeColor', nodes_colors, 'MarkerSize', 6, 'EdgeColor', 'black');
+        h = plot(G,'XData',x,'YData',y, 'NodeLabel', G.Nodes.Name,...
+            'NodeColor', nodes_colors, 'MarkerSize', 6, 'EdgeColor', 'black');
     else
-        plot(G,'XData',x,'YData',y, 'NodeColor', nodes_colors);
+        h = plot(G,'XData',x,'YData',y, 'NodeColor', nodes_colors);
     end
+    x_row = dataTipTextRow('x', G.Nodes.coord(:,1));
+    h.DataTipTemplate.DataTipRows(end+1) = x_row;
+    y_row = dataTipTextRow('y', G.Nodes.coord(:,2));
+    h.DataTipTemplate.DataTipRows(end+1) = y_row;
     axis equal;
 end
 

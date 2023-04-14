@@ -35,6 +35,8 @@ else
     % pdeplot(model,"XYData",results.NodalSolution,"ZData",results.NodalSolution, 'Mesh', 'on')
     % grid();
 end
+contact_trans_dir = [system.boundaries.dir.params];
+contact_trans_dir = vertcat(contact_trans_dir.trans_dir);
 
 [mat_props, converg_props, ec_pots, energy_range] = set_params(system, eq_fermi_energy, energy_points, kB);
 % [a, n_sides, t, epsilon, temp] = mat_props{:};
@@ -44,15 +46,13 @@ end
 [energy_1, energy_n, energy_points, delta_energy, energy_vec] = energy_range{:};
 
 %% Create contacts
-G_contacts = create_contacts(G, n_sides, system, a, graphene_angle);
+[G_contacts, G_contacts_dir] = create_contacts(G, n_sides, system, a, graphene_angle);
 
 %% Attach contacts to channel
-G_contact = attach_contacts(G_contacts, G, a);
+G_complete = attach_contacts(G_contacts, G, a);
 
 %% Define periodic contact structures
-for dir_bound=system.boundaries.dir
-    [alpha, beta, tau] = def_periodic_structures(G_contact, dir_bound.nodes, n_sides);
-end
+[alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a);
 
 %% Quantum parameters
 H = build_H(dir_G, epsilon, t);
@@ -63,7 +63,7 @@ V_prev = 0;
 while V_diff > U_tol && iter_counter < max_iter
     [rho, Gamma_left, Gamma_right, Green_r, Green_n, Green_a, A, V] = ...
     quantum_solver(G, H, results, energy_vec, delta_energy, mu_left,...
-    mu_right, temp, epsilon, t, eta, stop_cond, system, G_contact);
+    mu_right, temp, epsilon, t, eta, stop_cond, system, G_complete);
 
     results = poisson_solver(model, e_0, G, a, real(diag(rho)));
 

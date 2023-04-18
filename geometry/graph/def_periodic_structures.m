@@ -23,10 +23,10 @@ function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, e
             periodic_nodes = graph_search(H_dir, string(bound_node), chosen_candidates, periodic_nodes);
         end
         periodic_nodes = unique(periodic_nodes);
-        G_periodic = subgraph(H, contains(H.Nodes.Name, periodic_nodes));
+        G_periodic = subgraph(H, matches(H.Nodes.Name, periodic_nodes));
         alpha{end + 1} = build_alpha(G_periodic, epsilon, t);
         beta{end + 1} = build_beta(H_dir, chosen_candidates, periodic_nodes, t);
-%         tau{end + 1} = build_tau(G, bound_nodes, t);
+        tau{end + 1} = build_tau(G, periodic_nodes, t);
     end
 end
 
@@ -118,20 +118,20 @@ function beta = build_beta(H_dir, chosen_candidates, periodic_nodes, t)
 end
 
 
-% Fix it
-function tau = build_tau(G, bound_nodes, t)
-    tau = zeros(length(bound_nodes.Name));
-    tau_nodes = [];
-    bound_nodes = string(bound_nodes.Name);
-    channel_nodes = G.Nodes(G.Nodes.contact_id == 0, "Name");
-    channel_nodes = string(channel_nodes.Name);
-    for bound_node=bound_nodes'
-        if any(contains(channel_nodes, neighbors(G, bound_node)))
-            tau_nodes = [tau_nodes, str2double(bound_node)];
+function tau = build_tau(G, periodic_nodes, t)
+    channel_nodes = string(table2array(G.Nodes(G.Nodes.contact_id == 0, "Name")));
+    rows = [];
+    columns = [];
+    values = [];
+    for i=1:length(periodic_nodes)
+        neigs = neighbors(G, periodic_nodes(i));
+        neigs = channel_nodes(matches(channel_nodes, neigs));
+        for neig=neigs'
+            rows = [rows, str2double(neig)];
+            columns = [columns, i];
+            values = [values, t];
         end
     end
-    for pos=tau_nodes
-        tau(pos, pos) = t;
-    end
+    tau = full(sparse(rows, columns, values, height(channel_nodes), length(periodic_nodes)));
 end
 

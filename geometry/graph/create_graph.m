@@ -1,4 +1,4 @@
-function [undir_G, dir_G] = create_graph(nodes, n_sides, varargin)
+function [G, G_dir] = create_graph(nodes, n_sides, varargin)
 %create_graph create graph from specific nodes connections
 
     defaultNameOffset = 0;
@@ -39,24 +39,24 @@ function [undir_G, dir_G] = create_graph(nodes, n_sides, varargin)
     end
     dir_graph_matrix = triu(dir_graph_matrix);
     
-    undir_G = graph(undir_graph_matrix~=0);
-    dir_G = digraph(dir_graph_matrix~=0);
+    G = graph(undir_graph_matrix~=0);
+    G_dir = digraph(dir_graph_matrix~=0);
 
-    undir_G.Nodes.bounds = nodes_bounds;
-    undir_G.Nodes.color = nodes_colors;
-    undir_G.Nodes.coord = nodes_coords;
-    undir_G.Nodes.center = nodes_centers;
-    undir_G.Nodes.center_id = nodes_center_ids;
+    G.Nodes.bounds = nodes_bounds;
+    G.Nodes.color = nodes_colors;
+    G.Nodes.coord = nodes_coords;
+    G.Nodes.center = nodes_centers;
+    G.Nodes.center_id = nodes_center_ids;
 
-    dir_G.Nodes.bounds = nodes_bounds;
-    dir_G.Nodes.color = nodes_colors;
-    dir_G.Nodes.coord = nodes_coords;
-    dir_G.Nodes.center = nodes_centers;
-    dir_G.Nodes.center_id = nodes_center_ids;
+    G_dir.Nodes.bounds = nodes_bounds;
+    G_dir.Nodes.color = nodes_colors;
+    G_dir.Nodes.coord = nodes_coords;
+    G_dir.Nodes.center = nodes_centers;
+    G_dir.Nodes.center_id = nodes_center_ids;
 
-    [undir_G, dir_G] = build_boundary(undir_G, dir_G, n_sides);
+    [G, G_dir] = build_boundary(G, G_dir, n_sides);
     
-    undir_G.Nodes.Name = strtrim(node_names);
-    dir_G.Nodes.Name = strtrim(node_names);
+    G.Nodes.Name = strtrim(node_names);
+    G_dir.Nodes.Name = strtrim(node_names);
 end
 

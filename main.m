@@ -15,8 +15,8 @@ constants;
 
 if ~TEST
     [~, polygon_plot] = read_geometry('inputs/diode5.svg', scale, geometry_angle, false);
-    [G, dir_G] = set_quantum_geometry(polygon_plot, n_sides, a, [2e-1, 2e-1] * 1e-9);
-%     [G, dir_G] = set_quantum_geometry(polygon_plot, n_sides, a);
+%     [G, G_dir] = set_quantum_geometry(polygon_plot, n_sides, a, [2e-1, 2e-1] * 1e-9);
+    [G, G_dir] = set_quantum_geometry(polygon_plot, n_sides, a, [2, 2] * 1e-10);
     plot_graph(G, true);
     [geometry, polygon] = create_geometry(G);
 end
@@ -53,10 +53,10 @@ G_complete = attach_contacts(G_contacts, G, a);
 [G_concat] = concat_graphs(G_contacts_dir);
 
 %% Define periodic contact structures
-[alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a);
+[alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a, epsilon, t);
 
 %% Quantum parameters
-H = build_H(dir_G, epsilon, t);
+H = build_H(G_dir, epsilon, t);
 iter_counter = 1;
 V_diff = inf;
 V_prev = 0;

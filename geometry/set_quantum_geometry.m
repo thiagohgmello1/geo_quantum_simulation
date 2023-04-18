@@ -1,4 +1,4 @@
-function [G, dir_G] = set_quantum_geometry(polygon, n_sides, a, first_center, varargin)
+function [G, G_dir] = set_quantum_geometry(polygon, n_sides, a, first_center, varargin)
 %set_quantum_geometry Set quantum parameters as material geometry and fill
 %region with these structures
 
@@ -31,5 +31,5 @@ function [G, dir_G] = set_quantum_geometry(polygon, n_sides, a, first_center, va
     [nodes, polys_struct] = create_nodes(polys_struct, 'center_id_offset', center_id_offset);
     nodes = def_boundary_nodes(nodes, polys_struct);
     nodes = reorder_nodes(nodes, 'reorder_dir', reorder_dir);
-    [G, dir_G] = create_graph(nodes, n_sides, id_offset);
+    [G, G_dir] = create_graph(nodes, n_sides, id_offset);
 end

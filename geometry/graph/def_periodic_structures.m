@@ -1,17 +1,33 @@
-function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a)
+function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, epsilon, t)
 %def_periodic_structures calculate periodic structures in contacts
-    alpha = [];
-    beta = [];
-    tau = [];
+
+    alpha = {};
+    beta = {};
+    tau = {};
+
     all_regions = unique(G.Nodes.contact_id);
     contact_ids = all_regions(all_regions ~= 0);
+    
     for i=1:length(contact_ids)
         H = create_subregions(G, contact_ids(i,:));
-        bound_nodes = H.Nodes(H.Nodes.bound == 1,1:2);
+        H_matrix = full(adjacency(H));
+        H_matrix = triu(H_matrix);
+        H_dir = digraph(H_matrix);
+        H_dir.Nodes = H.Nodes;
+        bound_nodes = H.Nodes(H.Nodes.bound == 1, 1:2);
         trans_dir = contact_trans_dir(i,:);
         chosen_candidates = find_period(H, bound_nodes, trans_dir, a);
+
+        periodic_nodes = [];
+        for bound_node=bound_nodes.Name'
+            periodic_nodes = graph_search(H_dir, string(bound_node), chosen_candidates, periodic_nodes);
+        end
+        periodic_nodes = unique(periodic_nodes);
+        G_periodic = subgraph(H, contains(H.Nodes.Name, periodic_nodes));
+        alpha{end + 1} = build_alpha(G_periodic, epsilon, t);
+        beta{end + 1} = build_beta(H_dir, chosen_candidates, periodic_nodes, t);
+%         tau{end + 1} = build_tau(G, bound_nodes, t);
     end
-    
 end
 
 
@@ -76,6 +92,46 @@ function [candidate_status, chosen_candidates] = check_candidate(...
         candidate_status = false;
     else
         candidate_status = true;
+    end
+end
+
+
+function alpha = build_alpha(G_periodic, epsilon, t)
+    G_matrix = full(adjacency(G_periodic));
+    alpha = eye(numnodes(G_periodic)) * epsilon + t * triu(G_matrix) + t' * tril(G_matrix);
+end
+
+
+function beta = build_beta(H_dir, chosen_candidates, periodic_nodes, t)
+    beta = zeros(length(periodic_nodes));
+    beta_nodes = {};
+    for candidate=chosen_candidates
+        preds = predecessors(H_dir, candidate);
+        is_periodic = find(ismember(preds, periodic_nodes));
+        if is_periodic
+            beta_nodes{end + 1} = [preds(is_periodic) candidate];
+        end
+    end
+    for node=beta_nodes
+        beta(node{1}(1) == periodic_nodes, node{1}(2) == chosen_candidates) = t;
+    end
+end
+
+
+% Fix it
+function tau = build_tau(G, bound_nodes, t)
+    tau = zeros(length(bound_nodes.Name));
+    tau_nodes = [];
+    bound_nodes = string(bound_nodes.Name);
+    channel_nodes = G.Nodes(G.Nodes.contact_id == 0, "Name");
+    channel_nodes = string(channel_nodes.Name);
+    for bound_node=bound_nodes'
+        if any(contains(channel_nodes, neighbors(G, bound_node)))
+            tau_nodes = [tau_nodes, str2double(bound_node)];
+        end
+    end
+    for pos=tau_nodes
+        tau(pos, pos) = t;
     end
 end
 

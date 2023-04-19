@@ -38,11 +38,10 @@ end
 contact_trans_dir = [system.boundaries.dir.params];
 contact_trans_dir = vertcat(contact_trans_dir.trans_dir);
 
-[mat_props, converg_props, ec_pots, energy_range] = set_params(system, eq_fermi_energy, energy_points, kB);
+[mat_props, converg_props, mu, energy_range] = set_params(system, eq_fermi_energy, energy_points, kB);
 % [a, n_sides, t, epsilon, temp] = mat_props{:};
 [t, epsilon, temp] = mat_props{:};
 [eta, stop_cond, U_tol, max_iter] = converg_props{:};
-[mu_left, mu_right] = ec_pots{:};
 [energy_1, energy_n, energy_points, delta_energy, energy_vec] = energy_range{:};
 
 %% Create contacts
@@ -52,8 +51,8 @@ contact_trans_dir = vertcat(contact_trans_dir.trans_dir);
 G_complete = attach_contacts(G_contacts, G, a);
 [G_concat] = concat_graphs(G_contacts_dir);
 
-%% Define periodic contact structures
-[alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a, epsilon, t);
+% % Define periodic contact structures (included in quantum_solver)
+% [alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a, epsilon, t);
 
 %% Quantum parameters
 H = build_H(G_dir, epsilon, t);
@@ -62,15 +61,13 @@ V_diff = inf;
 V_prev = 0;
 
 while V_diff > U_tol && iter_counter < max_iter
-    [rho, Gamma_left, Gamma_right, Green_r, Green_n, Green_a, A, V] = ...
-    quantum_solver(G, H, results, energy_vec, delta_energy, mu_left,...
-    mu_right, temp, epsilon, t, eta, stop_cond, system, G_complete);
+    [rho, Gamma, Sigma, Sigma_in, Green_r, Green_n, Green_a, A, V] = ...
+    quantum_solver(G_complete, H, results, energy_vec, delta_energy, mu, temp, epsilon, t, eta, stop_cond, a, system);
 
     results = poisson_solver(model, e_0, G, a, real(diag(rho)));
-
 %     V_diff = norm(V - V_prev) / norm(V + V_prev);
     V_prev = V;
-    iter_counter = iter_counter + 1;
+    iter_counter = iter_counter + 1
 end
 
 %% Remove additional paths
@@ -81,7 +78,7 @@ change_paths('folder_paths.txt', 2);
 pos = G.Nodes.coord;
 x = pos(:,1);
 y=pos(:,2);
-scatter(x,y,25,abs(rho),'filled');
+scatter(x,y,25,abs(diag(rho)),'filled');
 
 
 

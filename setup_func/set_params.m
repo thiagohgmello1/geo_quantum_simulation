@@ -1,9 +1,8 @@
-function [mat_props, converg_props, ec_pots, energy_props] = set_params(system, eq_fermi_energy, energy_points, kB)
+function [mat_props, converg_props, mu, energy_props] = set_params(system, eq_fermi_energy, energy_points, kB)
 %set_params Set all paramas from input data
 
     mat_props = {};
     converg_props = {};
-    ec_pots = {};
     energy_props = {};
     
     % Material properties
@@ -29,14 +28,11 @@ function [mat_props, converg_props, ec_pots, energy_props] = set_params(system, 
     converg_props{end + 1} = max_iter;
     
     % Adjust calculus
-    mu_left = eq_fermi_energy + 1/2;
-    mu_right = eq_fermi_energy - 1/2;
-    ec_pots{end + 1} = mu_left;
-    ec_pots{end + 1} = mu_right;
+    mu = set_mu(system, eq_fermi_energy);
     
     % Energy range
-    energy_1 = mu_right - 4 * kB * temp;
-    energy_n = mu_left + 4 * kB * temp;
+    energy_1 = min(mu) - 4 * kB * temp;
+    energy_n = max(mu) + 4 * kB * temp;
     delta_energy = (energy_n - energy_1) / energy_points;
     energy_vec = t * linspace(energy_1, energy_n, energy_points);
     energy_props{end + 1} = energy_1;
@@ -45,3 +41,18 @@ function [mat_props, converg_props, ec_pots, energy_props] = set_params(system, 
     energy_props{end + 1} = delta_energy;
     energy_props{end + 1} = energy_vec;
 end
+
+
+function mu = set_mu(system, eq_fermi_energy)
+    contact_trans_dir = [system.boundaries.dir.params];
+    mu = zeros(length(contact_trans_dir), 1);
+    for i=1:length(contact_trans_dir)
+        mu(i) = eq_fermi_energy + contact_trans_dir(i).r;
+    end
+end
+
+
+
+
+
+

@@ -17,9 +17,9 @@ function [rho, Gamma, Sigma, Sigma_in, Green_r, Green_n, Green_a, A, V] = ...
 end
 
 
-function fermi = calc_fermi_levels(energy, mu, temperature)
-    fermi = zeros(length(mu), 1);
+function fermi_levels = calc_fermi_levels(energy, mu, temperature)
+    fermi_levels = zeros(length(mu), 1);
     for i=1:length(mu)
-        fermi(i) = fermi_level(energy, mu(i), temperature);
+        fermi_levels(i) = fermi_level(energy, mu(i), temperature);
     end
 end

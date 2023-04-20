@@ -49,16 +49,13 @@ contact_trans_dir = vertcat(contact_trans_dir.trans_dir);
 
 %% Attach contacts to channel
 G_complete = attach_contacts(G_contacts, G, a);
-[G_concat] = concat_graphs(G_contacts_dir);
 
+% [G_concat] = concat_graphs(G_contacts_dir);
 % % Define periodic contact structures (included in quantum_solver)
 % [alpha, beta, tau] = def_periodic_structures(G_complete, contact_trans_dir, a, epsilon, t);
 
 %% Quantum parameters
-H = build_H(G_dir, epsilon, t);
-iter_counter = 1;
-V_diff = inf;
-V_prev = 0;
+H = build_H(G_complete, epsilon, t, channel_id);
 
 while V_diff > U_tol && iter_counter < max_iter
     [rho, Gamma, Sigma, Sigma_in, Green_r, Green_n, Green_a, A, V] = ...

@@ -9,23 +9,24 @@ function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, e
     contact_ids = all_regions(all_regions ~= 0);
     
     for i=1:length(contact_ids)
-        H = create_subregions(G, contact_ids(i,:));
-        H_matrix = full(adjacency(H));
-        H_matrix = triu(H_matrix);
-        H_dir = digraph(H_matrix);
-        H_dir.Nodes = H.Nodes;
-        bound_nodes = H.Nodes(H.Nodes.bound == 1, 1:2);
+        G_contact = create_subregions(G, contact_ids(i,:));
+        G_matrix = full(adjacency(G_contact));
+        G_matrix = triu(G_matrix);
+        G_contact_dir = digraph(G_matrix);
+        G_contact_dir.Nodes = G_contact.Nodes;
+        bound_nodes = G_contact.Nodes(G_contact.Nodes.bound == 1, 1:2);
         trans_dir = contact_trans_dir(i,:);
-        chosen_candidates = find_period(H, bound_nodes, trans_dir, a);
+        chosen_candidates = find_period(G_contact, bound_nodes, trans_dir, a);
 
         periodic_nodes = [];
         for bound_node=bound_nodes.Name'
-            periodic_nodes = graph_search(H_dir, string(bound_node), chosen_candidates, periodic_nodes);
+            periodic_nodes = graph_search(G_contact_dir, string(bound_node), chosen_candidates, periodic_nodes);
         end
-        periodic_nodes = unique(periodic_nodes);
-        G_periodic = subgraph(H, matches(H.Nodes.Name, periodic_nodes));
+        periodic_nodes = string(unique(str2double(periodic_nodes)));
+
+        G_periodic = subgraph(G_contact, matches(G_contact.Nodes.Name, periodic_nodes));
         alpha{end + 1} = build_alpha(G_periodic, epsilon, t);
-        beta{end + 1} = build_beta(H_dir, chosen_candidates, periodic_nodes, t);
+        beta{end + 1} = build_beta(G_contact_dir, chosen_candidates, periodic_nodes, t);
         tau{end + 1} = build_tau(G, periodic_nodes, t);
     end
 end
@@ -37,7 +38,7 @@ function chosen_candidates = find_period(H, bound_nodes, trans_dir, a)
     quadrature_coords = H.Nodes.coord(:, quadrature_dir);
     [~, min_quadrature_coord_pos] = min(bound_nodes.coord(:, quadrature_dir));
     min_node = bound_nodes(min_quadrature_coord_pos, :);
-    visited_nodes = [min_node.Name{1}];
+    visited_nodes = [string(min_node.Name{1})];
     period_candidates = H.Nodes(is_close(quadrature_coords, ...
         min_node.coord(quadrature_dir), 'rtol', 0, 'atol', a / 10),:);
 
@@ -63,7 +64,7 @@ function [next_candidate, visited_nodes] = choose_closer_candidate(...
     for i=min_ordering'
         if right_dir(i) && non_checked_nodes(i)
             candidate_name = period_candidates.Name(i);
-            visited_nodes = [visited_nodes; candidate_name{1}];
+            visited_nodes = [visited_nodes; string(candidate_name{1})];
             break;
         end
     end
@@ -71,8 +72,7 @@ function [next_candidate, visited_nodes] = choose_closer_candidate(...
 end
 
 
-function [candidate_status, chosen_candidates] = check_candidate(...
-    H, bound_nodes, candidate, min_node, a)
+function [candidate_status, chosen_candidates] = check_candidate(H, bound_nodes, candidate, min_node, a)
     diff_candidate = candidate.coord - min_node.coord;
     translated_bound = bound_nodes.coord + diff_candidate;
     checked_nodes = {};
@@ -102,11 +102,11 @@ function alpha = build_alpha(G_periodic, epsilon, t)
 end
 
 
-function beta = build_beta(H_dir, chosen_candidates, periodic_nodes, t)
+function beta = build_beta(G_contact_dir, chosen_candidates, periodic_nodes, t)
     beta = zeros(length(periodic_nodes));
     beta_nodes = {};
     for candidate=chosen_candidates
-        preds = predecessors(H_dir, candidate);
+        preds = predecessors(G_contact_dir, candidate);
         is_periodic = find(ismember(preds, periodic_nodes));
         if is_periodic
             beta_nodes{end + 1} = [preds(is_periodic) candidate];
@@ -120,6 +120,7 @@ end
 
 function tau = build_tau(G, periodic_nodes, t)
     channel_nodes = string(table2array(G.Nodes(G.Nodes.contact_id == 0, "Name")));
+    G_channel = G_nodes_by_id(G, 0);
     rows = [];
     columns = [];
     values = [];
@@ -127,11 +128,11 @@ function tau = build_tau(G, periodic_nodes, t)
         neigs = neighbors(G, periodic_nodes(i));
         neigs = channel_nodes(matches(channel_nodes, neigs));
         for neig=neigs'
-            rows = [rows, str2double(neig)];
+            rows = [rows, findnode(G_channel, neig)];
             columns = [columns, i];
             values = [values, t];
         end
     end
-    tau = full(sparse(rows, columns, values, height(channel_nodes), length(periodic_nodes)));
+    tau = full(sparse(rows, columns, values, numnodes(G_channel), length(periodic_nodes)));
 end
 

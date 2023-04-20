@@ -12,3 +12,11 @@ energy_points = 100;
 graphene_angle = 90;
 n_sides = 6;
 geometry_angle = 0;
+
+% General channel ID
+channel_id = 0;
+
+% Quantum simulation initial parameters
+iter_counter = 1;
+V_diff = inf;
+V_prev = 0;

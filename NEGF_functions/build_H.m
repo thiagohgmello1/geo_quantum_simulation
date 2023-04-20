@@ -1,8 +1,9 @@
-function H = build_H(G_dir, epsilon, t)
+function H = build_H(G, epsilon, t, contact_id)
 %build_H build H matrix of NEGF method
-
-    alpha = epsilon * eye(numnodes(G_dir));
-    beta_aux = full(adjacency(G_dir));
+    
+    G = G_nodes_by_id(G, contact_id);
+    alpha = epsilon * eye(numnodes(G));
+    beta_aux = triu(full(adjacency(G)));
     beta_upper = t * beta_aux;
     beta_lower = t' * beta_aux';
     H = alpha + beta_upper + beta_lower;

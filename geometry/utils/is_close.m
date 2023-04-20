@@ -1,5 +1,5 @@
 function [closest_points] = is_close(a, b, varargin)
-%is_close check if two numbers are close
+%is_close check if "a" and "b" are close
     defaultRTol = 1e-5;
     defaultATol = 0;
 

@@ -55,7 +55,7 @@ function Mat_props_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for Mat_props
 handles.output.eq_fermi = 0.1;
 handles.output.temp = 300;
-handles.output.hoppings = -2;
+handles.output.hoppings = -2.8;
 handles.output.onsite = 4;
 handles.output.n_sides = 6;
 handles.output.lattice_len = 1.42e-10;

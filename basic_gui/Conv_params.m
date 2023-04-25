@@ -53,7 +53,7 @@ function Conv_params_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to Conv_params (see VARARGIN)
 
 % Choose default command line output for Conv_params
-handles.output.eta = 10e-3;
+handles.output.eta = 1e-4;
 handles.output.self_e_conv = 1e-4;
 handles.output.max_iter = 10;
 handles.output.delta_U = 1e-4;

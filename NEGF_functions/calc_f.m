@@ -1,7 +1,6 @@
 function f = calc_f(location, state, rho_in, G, neig_dist)
 %calc_f calculate f coefficient for PDE equation
     
-    
     points = [location.x(:), location.y(:)];
     coords = G.Nodes.coord;
 

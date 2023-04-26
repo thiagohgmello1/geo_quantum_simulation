@@ -44,10 +44,10 @@ end
 
 
 function mu = set_mu(system, eq_fermi_energy)
-    contact_trans_dir = [system.boundaries.dir.params];
-    mu = zeros(length(contact_trans_dir), 1);
-    for i=1:length(contact_trans_dir)
-        mu(i) = eq_fermi_energy + contact_trans_dir(i).r;
+    dir_bounds = [system.boundaries.dir.params];
+    mu = zeros(length(dir_bounds), 1);
+    for i=1:length(dir_bounds)
+        mu(i) = eq_fermi_energy + dir_bounds(i).r;
     end
 end
 

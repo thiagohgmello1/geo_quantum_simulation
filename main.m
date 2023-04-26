@@ -59,7 +59,8 @@ H = build_H(G_complete, epsilon, t, channel_id);
 
 while V_diff > U_tol && iter_counter < max_iter
     [rho, Gamma, Sigma, Sigma_in, Green_r, Green_n, Green_a, A, V] = ...
-    quantum_solver(G_complete, H, results, energy_vec, delta_energy, mu, temp, epsilon, t, eta, stop_cond, a, system);
+    quantum_solver(G_complete, H, results, energy_vec, delta_energy, mu, ...
+                   temp, epsilon, t, eta, stop_cond, a, system, kB);
 
     results = poisson_solver(model, e_0, G, a, real(diag(rho)));
 %     V_diff = norm(V - V_prev) / norm(V + V_prev);

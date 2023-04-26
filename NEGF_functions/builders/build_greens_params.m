@@ -10,5 +10,5 @@ function [Green_r, Green_n, Green_a, A] = build_greens_params(G, energy, H, U, S
     Green_a = Green_r';
     Green_n = Green_r * Sigma_in * Green_a; % Electron density (diagonal elements)
     
-    A = 1i * (Green_r - Green_r'); % Density of states (diagonal elements)
+    A = 1i * (Green_r - Green_r'); % Local density of states (diagonal elements)
 end

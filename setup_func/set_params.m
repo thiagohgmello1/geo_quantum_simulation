@@ -17,6 +17,7 @@ function [mat_props, converg_props, mu, energy_props] = set_params(system, eq_fe
     mat_props{end + 1} = epsilon;
     mat_props{end + 1} = temp;
     
+
     % Convergency properties
     eta = system.conv_params.eta;
     stop_cond = system.conv_params.self_e_conv;
@@ -27,14 +28,22 @@ function [mat_props, converg_props, mu, energy_props] = set_params(system, eq_fe
     converg_props{end + 1} = U_tol;
     converg_props{end + 1} = max_iter;
     
-    % Adjust calculus
+
+    % cálculo do potencial eletroquímico. É baseado em um valor de 
+    % referência do material e na fórmula u2-u1=-qV (u2 é o
+    % terminal - e u1 é o terminal +
     mu = set_mu(system, eq_fermi_energy);
+
     
-    % Energy range
-    energy_1 = min(mu) - 4 * kB * temp;
-    energy_n = max(mu) + 4 * kB * temp;
+    % Energy range: deve ser maior do que o maior u e menor do que o menor
+    % u. É usual escolher valores acima e abaixo por 4 * kB * temp
+%     energy_1 = min(mu) - 4 * kB * temp;
+%     energy_n = max(mu) + 4 * kB * temp;
+    energy_1 = -1;
+    energy_n = 1;
     delta_energy = (energy_n - energy_1) / energy_points;
-    energy_vec = t * linspace(energy_1, energy_n, energy_points);
+%     energy_vec = t * linspace(energy_1, energy_n, energy_points);
+    energy_vec = linspace(energy_1, energy_n, energy_points);
     energy_props{end + 1} = energy_1;
     energy_props{end + 1} = energy_n;
     energy_props{end + 1} = energy_points;
@@ -47,7 +56,7 @@ function mu = set_mu(system, eq_fermi_energy)
     dir_bounds = [system.boundaries.dir.params];
     mu = zeros(length(dir_bounds), 1);
     for i=1:length(dir_bounds)
-        mu(i) = eq_fermi_energy + dir_bounds(i).r;
+        mu(i) = eq_fermi_energy - dir_bounds(i).r;
     end
 end
 

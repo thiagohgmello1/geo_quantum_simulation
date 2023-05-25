@@ -71,7 +71,7 @@ default_eq_params.f = 1;
 default_bound_conds.dir = [];
 default_bound_conds.neu = [];
 
-default_conv_params.eta = 10e-3;
+default_conv_params.eta = 1e-4;
 default_conv_params.self_e_conv = 1e-4;
 default_conv_params.max_iter = 10;
 default_conv_params.delta_U = 1e-4;
@@ -79,7 +79,7 @@ default_conv_params.delta_U = 1e-4;
 default_mat_props.eq_fermi = 0.1;
 default_mat_props.temp = 300;
 default_mat_props.hoppings = -2.8;
-default_mat_props.onsite = 4;
+default_mat_props.onsite = 0;
 default_mat_props.n_sides = 6;
 default_mat_props.lattice_len = 1.42e-10;
 

@@ -1,4 +1,4 @@
-function [Green_r, Green_n, Green_a, A] = build_greens_params(G, energy, H, U, Sigma, Sigma_in)
+function [Green_r, Green_n, Green_a, A] = build_greens_params(G, energy, H, U, Sigma, Sigma_in, eta)
 %build_greens_params create Green's matrices
     
     n_atoms = numnodes(G);
@@ -9,6 +9,5 @@ function [Green_r, Green_n, Green_a, A] = build_greens_params(G, energy, H, U, S
     Green_r = (energy * I - (H + U) - Sigma) \ I; % Retarded Green's function
     Green_a = Green_r';
     Green_n = Green_r * Sigma_in * Green_a; % Electron density (diagonal elements)
-    
     A = 1i * (Green_r - Green_r'); % Local density of states (diagonal elements)
 end

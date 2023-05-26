@@ -1,9 +1,11 @@
-function sigma = semi_analytical_method(alpha, beta, energy)
+function [sigma, SGF, V] = semi_analytical_method(alpha, beta, energy)
 %semi_analytical_method calculate SGF considering a semi-analytical lead
 %model
     imag_tol = 1e-7;
     deg_tol = 1e-8;
     sigma = {};
+    SGF = {};
+    coupling = {};
 
     for i=1:length(alpha)
         [K0, K1, S0, S1] = build_aux_matrices(alpha{i}, beta{i}, energy);
@@ -13,10 +15,11 @@ function sigma = semi_analytical_method(alpha, beta, energy)
         [group_vel, C_kp] = calc_group_velocity(K1, S0, S1, C_kp, lambda);
         [out_idx, out_going, in_idx, in_going] = separate_wave_vectors(group_vel, lambda, imag_tol);
         C_kp = treat_degenerancy_subspace(K1, out_idx, out_going, in_idx, in_going, kp, C_kp, lambda, deg_tol, N);
-        [V, inv_sigma] = build_green(in_idx, out_idx, lambda, C_kp, K0, K1, N);
-        sigma{end + 1} = -inv(inv_sigma);
+        [self_energy, G_surface, V] = build_parameters(in_idx, out_idx, lambda, C_kp, K0, K1, N);
+        coupling{end + 1} = V;
+        SGF{end + 1} = G_surface;
+        sigma{end + 1} = self_energy;
     end
-    
 end
 
 
@@ -24,11 +27,11 @@ function [K0, K1, S0, S1] = build_aux_matrices(alpha, beta, energy)
     H0 = alpha;
     H1 = beta;
     N = length(H0);
-    S0_aux = eye(N);
-    S1_aux = zeros(N);
-    K0_aux = H0 - energy * S0_aux;
-    K1_aux = H1 - energy * S1_aux;
-    [K0, K1, S0, S1, ~] = regularize_matrices(K0_aux, K1_aux, S0_aux, S1_aux);
+    S0 = eye(N);
+    S1 = zeros(N);
+    K0 = H0 - energy * S0;
+    K1 = H1 - energy * S1;
+    [K0, K1, S0, S1] = regularize_matrices(K0, K1, S0, S1);
 end
 
 
@@ -53,8 +56,9 @@ function [group_vel, C_kp] = calc_group_velocity(K1, S0, S1, C_kp, lambda)
     group_vel = zeros(2 * N, 1);
     for i = 1:2*N
         normalizer = C_kp(1:N, i)' * (S0 + S1 * lambda(i) + S1' * 1 / lambda(i)) * C_kp(1:N, i);
-        C_kp(1:N, i) = C_kp(1:N, i)/sqrt(normalizer);
-        group_vel(i) = 1i * C_kp(1:N, i)' * (K1 * lambda(i) - K1' / lambda(i)) * C_kp(1:N, i);
+        C_kp(1:N, i) = C_kp(1:N, i) / lambda(i);
+        C_kp_normal = C_kp(1:N, i)/sqrt(normalizer);
+        group_vel(i) = 1i * C_kp_normal' * (K1 * lambda(i) - K1' / lambda(i)) * C_kp_normal;
     end
 end
 
@@ -99,20 +103,27 @@ function C_kp = treat_degenerancy_subspace(K1, out_idx, out_open, in_idx, in_ope
 end
 
 
-function [V, inv_sigma] = build_green(in_idx, out_idx, lambda, C_kp, K0, K1, N)
-    vect_in = C_kp(1:N, in_idx);
-    vect_out = C_kp(1:N, out_idx);
+function [self_energy, G_surface, V] = build_parameters(in_idx, out_idx, lambda, C_kp, K0, K1, N)
+    Q = C_kp(1:N, in_idx);
+    Q_bar = C_kp(1:N, out_idx);
+    D = (Q \ eye(length(Q)))';
+    D_bar = (Q_bar \ eye(length(Q_bar)))';
+    
 
-    if length(1 / lambda(out_idx)) > 1
-        out_minus = vect_out * (diag(1 / lambda(out_idx))) / vect_out;
-        in_minus = vect_in * (diag(1 / lambda(in_idx))) / vect_in;
-    else
-        out_minus = vect_out * (1 / lambda(out_idx)) / vect_out;
-        in_minus = vect_in * (1 / lambda(in_idx)) / vect_in;
+    transfer = zeros(N);
+    transfer_bar = zeros(N);
+
+%     transfer = Q * (diag(lambda(in_idx))) * D;
+%     transfer_bar = Q_bar * (diag(1 ./ lambda(out_idx))) * D_bar;
+    
+    for i=1:N
+        transfer = transfer + Q(:, i) * (diag(lambda(in_idx(i)))) * D(:, i)';
+        transfer_bar = transfer_bar + Q_bar(:, i) * (diag(1 ./ lambda(out_idx(i)))) * D_bar(:, i)';
     end
 
-    V = K1' * (in_minus - out_minus);
-    inv_sigma = K0 + K1' * out_minus;
+    V = K1' * (transfer \ eye(length(transfer)) - transfer_bar);
+    self_energy = K1 * transfer;
+    G_surface = -inv(K0 + self_energy);
 end
 
 

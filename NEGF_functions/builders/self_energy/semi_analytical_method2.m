@@ -1,5 +1,6 @@
 function sigma = semi_analytical_method2(alpha, beta, energy)
 %semi_analytical_method2 
+
     imag_tol = 1e-7;
     sigma = {};
     for i_lead=1:length(alpha)
@@ -33,7 +34,7 @@ function [K0, K1, S0, S1] = build_aux_matrices(alpha, beta, energy)
     S1 = zeros(N);
     K0 = H0 - energy * S0;
     K1 = H1 - energy * S1;
-    [K0, K1, S0, S1, ~] = regularize_matrices(K0, K1, S0, S1);
+    [K0, K1, K_1] = regularize_matrices2(K0, K1, S0, S1);
 end
 
 

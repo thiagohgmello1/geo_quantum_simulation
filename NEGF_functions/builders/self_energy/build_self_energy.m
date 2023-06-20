@@ -21,9 +21,9 @@ function sigma = build_self_energy(G, epsilon, t, energy, eta, stop_cond, system
     [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, epsilon, t);
     
     if method == 1
-        sigma = recurrent_method(G, alpha, beta, tau, energy, eta, stop_cond);
+        [sigma, SGF] = recurrent_method(G, alpha, beta, tau, energy, eta, stop_cond);
     else
-        [sigma, G_surface, V] = semi_analytical_method(alpha, beta, energy);
+        [sigma, SGF, V] = semi_analytical_method(alpha, beta, energy);
     end
 end
 

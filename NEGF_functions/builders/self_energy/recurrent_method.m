@@ -1,15 +1,17 @@
-function sigma = recurrent_method(G, alpha, beta, tau, energy, eta, stop_cond)
-    sigma = {};
+function [sigma, SGF] = recurrent_method(G, alpha, beta, tau, energy, eta, stop_cond)
+    
     func_ids = unique([G.Nodes.contact_id]);
     contact_ids = func_ids(func_ids ~= int8(0));
+    SGF = {1, length(contact_ids)};
+    sigma = {1, length(contact_ids)};
     
     for i=1:length(contact_ids)
-        gn = iterate_gn(alpha{contact_ids(i)}, beta{contact_ids(i)}, energy, eta, stop_cond);
-        sigma{end + 1} = tau{contact_ids(i)} * gn * tau{contact_ids(i)}';
+        SGF{i} = iterate_SGF(alpha{contact_ids(i)}, beta{contact_ids(i)}, energy, eta, stop_cond);
+        sigma{i} = tau{contact_ids(i)} * SGF{i} * tau{contact_ids(i)}';
     end
 end
 
-function g_after = iterate_gn(alpha, beta, energy, eta, stop_cond)
+function g_after = iterate_SGF(alpha, beta, energy, eta, stop_cond)
     I = eye(length(alpha));
     change = inf;
     g_before = zeros(length(I));

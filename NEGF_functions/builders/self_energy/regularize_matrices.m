@@ -19,7 +19,7 @@ function [K0, K1, S0, S1, V, values] = regularize_matrices(K0, K1, S0, S1, varar
     values = {};
     if rank(K1) ~= N || abs(det(K1)) < det_tol
         [K1, U, S, V] = calc_svd(K1, N, delta_SVD);
-%         [K0, K1, S0, S1, values] = reduce_matrix_size(K0, K1, S0, S1, U, S, V, delta_SVD, N);
+        [K0, K1, S0, S1] = reduce_matrix_size(K0, K1, S0, S1, U, S, V, delta_SVD, N);
         K1 = regularize_small_elements(K1, delta_SVD, N);
         K1 = add_small_imaginary(K1, delta_SVD);
     end
@@ -47,9 +47,8 @@ function [min_eig, keep_values, decimate_values, S] = set_min_eigs(S, delta_SVD,
 end
 
 
-function [K0, K1, S0, S1, values] = reduce_matrix_size(K0, K1, S0, S1, U, S, V, delta_SVD, N)
+function [K0, K1, S0, S1] = reduce_matrix_size(K0, K1, S0, S1, U, S, V, delta_SVD, N)
     [min_eig, keep_values, decimate_values, ~] = set_min_eigs(S, delta_SVD, N);
-    values = {keep_values, decimate_values};
     K0_trans = V' * K0 * V;
     K1_trans = V' * K1 * V;
 
@@ -101,13 +100,5 @@ function K1 = add_small_imaginary(K1, delta_SVD)
     max_perturbation = delta_SVD * max(max(abs(K1)));
     K1 = K1 + max_perturbation * (1i * rand(length(K1)));
 end
-
-
-
-
-
-
-
-
 
 

@@ -23,7 +23,7 @@ function sigma = build_self_energy(G, epsilon, t, energy, eta, stop_cond, system
     if method == 1
         [sigma, SGF] = recurrent_method(G, alpha, beta, tau, energy, eta, stop_cond);
     else
-        [sigma, SGF, V] = semi_analytical_method(alpha, beta, energy);
+        [sigma, SGF] = semi_analytical_method(alpha, beta, energy);
     end
 end
 

@@ -14,8 +14,8 @@ constants;
 %% Graph generation
 
 if ~TEST
-    [~, polygon_plot] = read_geometry('inputs/rectangle1.svg', scale, geometry_angle, false);
-    [G, G_dir] = set_quantum_geometry(polygon_plot, n_sides, a, [2, 2] * 1e-10, 'angle', graphene_angle);
+    [~, polygon_plot] = read_geometry('inputs/rectangle1.svg', gen.scale, mat.geometry_angle, false);
+    [G, G_dir] = set_quantum_geometry(polygon_plot, mat.n_sides, mat.a, [2, 2] * 1e-10, 'angle', mat.angle);
     [geometry, polygon] = create_geometry(G);
 end
 

@@ -33,3 +33,11 @@ function [G, G_dir] = set_quantum_geometry(polygon, n_sides, a, first_center, va
     nodes = reorder_nodes(nodes, 'reorder_dir', reorder_dir);
     [G, G_dir] = create_graph(nodes, n_sides, id_offset);
 end
+
+
+
+
+
+
+
+

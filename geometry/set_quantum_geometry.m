@@ -27,7 +27,7 @@ function [G, G_dir] = set_quantum_geometry(polygon, n_sides, a, first_center, va
     center_id_offset = p.Results.center_id_offset;
     reorder_dir = p.Results.reorder_dir;
 
-    [polys_struct] = fill_region(polygon, n_sides, a, first_center, angle, regis_centers);
+    [polys_struct] = fill_region(polygon, n_sides, a, first_center, 'angle', angle, 'regis_centers', regis_centers);
     [nodes, polys_struct] = create_nodes(polys_struct, 'center_id_offset', center_id_offset);
     nodes = def_boundary_nodes(nodes, polys_struct);
     nodes = reorder_nodes(nodes, 'reorder_dir', reorder_dir);

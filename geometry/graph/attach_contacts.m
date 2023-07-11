@@ -1,4 +1,4 @@
-function G_concat = attach_contacts(G_contacts, G, a)
+function G_concat = attach_contacts(G_contacts, G, a, polygon_plot)
 %attach_contacts attach contacts to system
     
     repeated_nodes = [];
@@ -11,7 +11,10 @@ function G_concat = attach_contacts(G_contacts, G, a)
     G_concat = concat_graphs(G_contacts, G);
     G_concat = connect_contacts(G_concat, neig_nodes);
     G_concat = remove_repeated_nodes(G_concat, repeated_nodes, neig_nodes);
+    G_concat = add_exceptional_bound_nodes(G_concat);
+    G_concat = reorganize_bounds(G_concat, polygon_plot);
     G_concat = complete_boundaries(G_concat);
+    G_concat = add_exceptional_bound_nodes(G_concat);
 end
 
 
@@ -54,7 +57,6 @@ function G_concat = concat_graphs(G_contacts, G)
         names = [names; G_contact.Nodes.Name];
         coords = [coords; G_contact.Nodes.coord];
         colors = [colors; repmat(contact_color, length(G_contact.Nodes.coord), 1);];
-%         contacts = [contacts; true(length(G_contact.Nodes.coord), 1)];
         contact_id = [contact_id; repmat(cont_id_counter, length(G_contact.Nodes.coord), 1)];
         center_id = [center_id; G_contact.Nodes.center_id];
     end
@@ -119,6 +121,49 @@ function G = complete_boundaries(G)
     end
 end
 
+% New method. Doesn't work for ACNR. Find a way to consider a transition
+% region (orientated by transversal system vector)
+function G = reorganize_bounds(G, polygon)
+    contact_ids = nonzeros(unique(G.Nodes.contact_id));
+    default_channel_data = G.Nodes(G.Nodes.contact_id == 0, ["color", "bound", "contact_id"]);
+    default_channel_data = default_channel_data(1,:);
+    for contact=contact_ids'
+        contact_nodes = G.Nodes(and(G.Nodes.contact_id == contact, G.Nodes.bound == true), [1, 2]);
+        nodes_id = contact_nodes(:, 1);
+        nodes_coords = table2array(contact_nodes(:, 2));
+        nodes_inside_poly = nodes_id(inpolygon(nodes_coords(:, 1), nodes_coords(:, 2), polygon(:, 1), polygon(:, 2)),:);
+        for node=table2array(nodes_inside_poly)'
+            node_pos = findnode(G, node{1});
+            bound_neigs = neighbors(G, node_pos)';
+            new_bound_nodes = bound_neigs(logical(G.Nodes(bound_neigs, "contact_id").Variables));
+            G.Nodes(new_bound_nodes, "bound") = {true};
+            G.Nodes(node_pos, ["color", "bound", "contact_id"]) = default_channel_data;
+        end
+    end
+end
+
+
+function G = add_exceptional_bound_nodes(G)
+    already_bound_nodes = G.Nodes(G.Nodes.bound == true, "Name");
+    rows = height(already_bound_nodes);
+    channel_nodes = table2cell(G.Nodes(G.Nodes.contact_id == 0, "Name"));
+    for i=1:rows
+        bound_neigs = neighbors(G, already_bound_nodes{i, 1}{1});
+        neigs_cond = cell2mat(cellfun(@(node) and(ismember(node, bound_neigs), ...
+            length(neighbors(G ,node)) == 2), G.Nodes.Name, 'UniformOutput', false));
+        check_neigs = cell2mat(cellfun(@(v) any(ismember(v, channel_nodes)), bound_neigs, 'UniformOutput', false));
+        if ~any(neigs_cond) || ~any(check_neigs)
+            continue
+        end
+        non_channel_nodes = G.Nodes.contact_id ~= 0;
+        nodes = and(neigs_cond, non_channel_nodes);
+        if any(nodes)
+            G.Nodes(nodes, "bound").Variables = true;
+        end
+    end
+    
+
+end
 
 
 

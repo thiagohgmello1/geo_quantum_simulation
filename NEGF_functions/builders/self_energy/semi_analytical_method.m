@@ -6,19 +6,18 @@ function [sigma, SGF] = semi_analytical_method(alpha, beta, energy)
     SGF = {};
 
     for i=1:length(alpha)
-        [K0, K1, S0, S1, V] = build_aux_matrices(alpha{i}, beta{i}, energy);
-        N = length(K0);
-        [C_kp, lambda, C_kpl] = solve_generalized_eig(K0, K1, N);
-        [group_vel, C_kp, ~] = calc_group_velocity(K1, S0, S1, C_kp, C_kpl, lambda);
+        [K, S, Fn, len] = build_aux_matrices(alpha{i}, beta{i}, energy);
+        [Phi, lambda] = solve_generalized_eig(K);
+        [group_vel, Phi] = calc_group_velocity(K, S, Phi, lambda);
         [left_going_idx, right_going_idx] = separate_wave_vectors(group_vel, lambda, imag_tol);
-        [TR, ~] = right_transfer(C_kp, lambda, right_going_idx, left_going_idx, N);
-        SGF{end + 1} = -inv(K0 + K1 * TR);
-        sigma{end + 1} = K1 * TR;
+        TR = build_TR(Phi, lambda, right_going_idx, left_going_idx, len, Fn);
+        sigma{end + 1} = build_Sigma(Phi, lambda, right_going_idx, left_going_idx, len, Fn, K);
+        SGF{end + 1} = -inv(K.K0 + sigma{end});
     end
 end
 
 
-function [K0, K1, S0, S1, V, values] = build_aux_matrices(alpha, beta, energy)
+function [K, S, Fn, len] = build_aux_matrices(alpha, beta, energy)
     H0 = alpha;
     H1 = beta;
     N = length(H0);
@@ -26,32 +25,39 @@ function [K0, K1, S0, S1, V, values] = build_aux_matrices(alpha, beta, energy)
     S1 = zeros(N);
     K0 = H0 - energy * S0;
     K1 = H1 - energy * S1;
-    [K0, K1, S0, S1, V, values] = regularize_matrices(K0, K1, S0, S1);
+    [K, S, Fn, len] = regularize_matrices(K0, K1, S0, S1);
 end
 
 
-function [C_kp, lambda, C_kpl] = solve_generalized_eig(K0, K1, N)
+function [Phi, lambda] = solve_generalized_eig(K)
+    N = length(K.K0_eff);
     IN = eye(N);
     ZN = zeros(N);
-    A = [-K0, -K1'; IN, ZN];
-    B = [K1, ZN; ZN, IN];
+    A = [-K.K0_eff, -K.Km1_eff; IN, ZN];
+    B = [K.K1_eff, ZN; ZN, IN];
 
-    [C_kp, lambda, C_kpl] = eig(A,B);
+    [Phi_R, lambda, Phi_L] = eig(A, B);
+    Phi = struct();
+    Phi.R = Phi_R;
+    Phi.L = Phi_L;
     lambda = diag(lambda);
 end
 
 
-function [group_vel, C_kp, C_kpl] = calc_group_velocity(K1, S0, S1, C_kp, C_kpl, lambda)
+function [group_vel, Phi] = calc_group_velocity(K, S, Phi, lambda)
     N = length(lambda) / 2;
     group_vel = zeros(2 * N, 1);
+    Phi_R = Phi.R(1:N, :);
+    Phi_L = Phi.L(1:N, :);
     for i = 1:2*N
-        den = (C_kpl(1:N, i)' * (S0 + S1 * lambda(i) + S1' * 1 / lambda(i)) * C_kp(1:N, i));
-        group_vel(i) = 1i * C_kpl(1:N, i)' * (K1 * lambda(i) - K1' / lambda(i)) * C_kp(1:N, i) / den;
-        C_kp(1:N, i) = C_kp(1:N, i) * sqrt(group_vel(i)) / lambda(i);
-        C_kpl(1:N, i) = C_kpl(1:N, i) * sqrt(group_vel(i)) / (1i * lambda(i));
+        den = (Phi_L(:, i)' * (S.S0_eff + S.S1_eff * lambda(i) + S.Sm1_eff * 1 / lambda(i)) * Phi_R(:, i));
+        group_vel(i) = 1i * Phi_L(:, i)' * (K.K1_eff * lambda(i) - K.Km1_eff / lambda(i)) * Phi_R(:, i) / den;
+        Phi_R(:, i) = Phi_R(:, i) * sqrt(group_vel(i)) / lambda(i);
+        Phi_L(:, i) = Phi_L(:, i) * sqrt(group_vel(i)) / (1i * lambda(i));
     end
-    C_kp = C_kp(1:N, :);
-    C_kpl = C_kpl(1:N, :);
+    Phi = struct();
+    Phi.R = Phi_R;
+    Phi.L = Phi_L;
 end
 
 
@@ -64,24 +70,47 @@ function [left_going_idx, right_going_idx] = separate_wave_vectors(group_vel, la
 end
 
 
-function [TR, TR_bar] = right_transfer(C_kp, lambda, in_idx, out_idx, N)
-    [Q, Q_bar] = build_Q_matrices(C_kp, in_idx, out_idx);
+function TR = build_TR(Phi, lambda, in_idx, out_idx, len, Fn)
+    M = len.N - len.N_eff;
+    ZN_sup = zeros(len.N_eff, M);
+    ZN_inf = zeros(M, M);
+
+    [Q, ~] = build_Q_matrices(Phi, in_idx, out_idx);
     Q_til = inv(Q)';
-    Q_bar_til = inv(Q_bar)';
-    TR = zeros(N, 1);
-    TR_bar = zeros(N, 1);
+    TR = zeros(len.N);
     lambda_aux = lambda(in_idx);
-    lamda_bar_aux = lambda(out_idx);
-    for i=1:N
-        TR = TR + Q(:, i) * lambda_aux(i) * Q_til(:, i)';
-        TR_bar = TR_bar + Q_bar(:, i) * lamda_bar_aux(i) * Q_bar_til(:, i)';
+    for i=1:len.N_eff
+        F = Fn.minus_D_inv * (Fn.Km1u * 1 / lambda_aux(i) + Fn.C);
+        aux_sup = Q(:, i) * lambda_aux(i) * Q_til(:, i)';
+        aux_inf = F * Q(:, i) * lambda_aux(i) * Q_til(:, i)';
+        TR = TR + [aux_sup, ZN_sup; aux_inf, ZN_inf];
     end
 end
 
 
-function [Q, Q_bar] = build_Q_matrices(C_kp, in_idx, out_idx)
-    Q = C_kp(:, in_idx);
-    Q_bar = C_kp(:, out_idx);
+function Sigma = build_Sigma(Phi, lambda, in_idx, out_idx, len, Fn, K)
+    M = len.N - len.N_eff;
+    ZN_sup = zeros(len.N_eff, M);
+    ZN_inf1 = zeros(M, len.N_eff);
+    ZN_inf2 = zeros(M, M);
+    
+
+    [Q, ~] = build_Q_matrices(Phi, in_idx, out_idx);
+    Q_til = inv(Q)';
+    Sigma_eff = zeros(len.N_eff);
+    lambda_aux = lambda(in_idx);
+    for i=1:len.N_eff
+        Sigma_eff = Sigma_eff + lambda_aux(i) * Q(:, i) * Q_til(:, i)';
+    end
+    Sigma_eff = K.K1_eff * Sigma_eff;
+    Sigma = [Sigma_eff - Fn.Km1u' * (-Fn.minus_D_inv) * Fn.Km1u, ZN_sup; ZN_inf1, ZN_inf2];
+    Sigma = Fn.U * Sigma * Fn.U';
+end
+
+
+function [Q, Q_bar] = build_Q_matrices(Phi, in_idx, out_idx)
+    Q = Phi.R(:, in_idx);
+    Q_bar = Phi.R(:, out_idx);
 end
 
 

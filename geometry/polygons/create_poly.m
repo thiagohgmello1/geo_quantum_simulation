@@ -1,7 +1,7 @@
 function [pol, polygon] = create_poly(id, n_sides, center, side_len, varargin)
 %create_pol create polygon struct
 
-    defaultAngle = 0;
+    defaultAngle = 90;
     p = inputParser;
     validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
     addRequired(p,'id', validScalarPosNum);
@@ -10,9 +10,10 @@ function [pol, polygon] = create_poly(id, n_sides, center, side_len, varargin)
     addRequired(p,'side_len', validScalarPosNum);
     addOptional(p, 'angle', defaultAngle);
     parse(p, id, n_sides, center, side_len, varargin{:});
+    angle = p.Results.angle;
 
     polygon = nsidedpoly(n_sides, 'Center', center, 'SideLength', side_len);
-    polygon = rotate(polygon, p.Results.angle, center);
+    polygon = rotate(polygon, angle, center);
     vertices = polygon.Vertices;
     
     pol = {};

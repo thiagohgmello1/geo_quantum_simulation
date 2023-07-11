@@ -1,7 +1,7 @@
 function plot_graph(G, varargin)
 %plot_graph plot graph following specific nodes positions
 
-    defaultShowNames = false;
+    defaultShowNames = true;
     defaultNewFigure = true;
     p = inputParser;
     addRequired(p,'G');

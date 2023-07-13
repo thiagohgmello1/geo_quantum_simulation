@@ -32,32 +32,27 @@ else
     pdeplot(model,'XYData',results.NodalSolution);
 end
 
-[mat_props, converg_props, mu, energy_range] = set_params(system, eq_fermi_energy, energy_points, kB);
-% [a, n_sides, t, epsilon, temp] = mat_props{:};
-[t, epsilon, temp] = mat_props{:};
-[eta, stop_cond, U_tol, max_iter] = converg_props{:};
-[energy_1, energy_n, energy_points, delta_energy, energy_vec] = energy_range{:};
-Vol = a_cc^2 * t_G;
+[mu, gen, mat, iter] = set_params(system, gen, mat, iter);
+% [eta, stop_cond, U_tol, max_iter] = converg_props{:};
+% [energy_1, energy_n, energy_points, delta_energy, energy_vec] = energy_range{:};
+Vol = mat.a_cc^2 * mat.t_G;
 
 %% Create contacts
-[G_contacts, ~] = create_contacts(G, n_sides, system, a, graphene_angle);
+[G_contacts, ~] = create_contacts(G, mat, system);
 
 %% Attach contacts to channel
-G_complete = attach_contacts(G_contacts, G, a, polygon_plot);
+G_complete = attach_contacts(G_contacts, G, mat.a, polygon_plot);
 
 %% Quantum parameters
-H = build_H(G_complete, epsilon, t, channel_id);
+H = build_H(G_complete, mat, channel_id);
 
-method = 0;
+method = 1;
 
-V_test = calc_V(G_nodes_by_id(G_complete, channel_id), results);
-while V_diff > U_tol && iter_counter < max_iter
+while iter.V_diff > U_tol && iter.counter < iter.conv.max_iter
     % Change gamma calculation for contacts and conductance
     [rho, Gamma, Sigma, Green, A, V_prev] = ...
-    quantum_solver(G_complete, H, results, energy_vec, delta_energy, mu, ...
-                   temp, epsilon, t, eta, stop_cond, a, system, kB, Vol, method);
-
-    results = poisson_solver(model, e_0, G, a, q * real(diag(rho)));
+    quantum_solver(G_complete, H, mat, iter, gen, results, mu, system, Vol, method);
+    results = poisson_solver(model, gen.e_0, G, mat.a, gen.q * real(diag(rho)));
 %     V_diff = norm(V - V_prev) / norm(V + V_prev);
     V = calc_V(G_nodes_by_id(G_complete, channel_id), results);
     iter_counter = iter_counter + 1

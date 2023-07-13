@@ -1,4 +1,4 @@
-function [V] = calc_V(G, results)
+function V = calc_V(G, results)
 %calc_U calculate U potencial matrix
     
     x = G.Nodes.coord(:,1);

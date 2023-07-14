@@ -23,7 +23,7 @@ function results = poisson_solver(model, varargin)
     if ~a
         results = solvepde(model);
     else
-        recursively_apply_params(-rho / epsilon, G, model, a);
+        recursively_apply_params(-rho, G, model, a);
         results = solvepde(model);
     end
 end

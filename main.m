@@ -16,6 +16,7 @@ constants;
 if ~TEST
     [~, polygon_plot] = read_geometry('inputs/rectangle1.svg', gen.scale, mat.geometry_angle, false);
     [G, G_dir] = set_quantum_geometry(polygon_plot, mat.n_sides, mat.a, [2, 2] * 1e-10, 'angle', mat.angle);
+%     [G, G_dir] = set_quantum_geometry(polygon_plot, mat.n_sides, mat.a, [5, 5] * 1e-9, 'angle', mat.angle);
     [geometry, polygon] = create_geometry(G);
 end
 
@@ -33,8 +34,6 @@ else
 end
 
 [mu, gen, mat, iter] = set_params(system, gen, mat, iter);
-% [eta, stop_cond, U_tol, max_iter] = converg_props{:};
-% [energy_1, energy_n, energy_points, delta_energy, energy_vec] = energy_range{:};
 Vol = mat.a_cc^2 * mat.t_G;
 
 %% Create contacts
@@ -48,14 +47,13 @@ H = build_H(G_complete, mat, channel_id);
 
 method = 1;
 
-while iter.V_diff > U_tol && iter.counter < iter.conv.max_iter
+while iter.V_diff > iter.conv.U_tol && iter.counter < iter.conv.max_iter
     % Change gamma calculation for contacts and conductance
-    [rho, Gamma, Sigma, Green, A, V_prev] = ...
-    quantum_solver(G_complete, H, mat, iter, gen, results, mu, system, Vol, method);
-    results = poisson_solver(model, gen.e_0, G, mat.a, gen.q * real(diag(rho)));
+    [rho, Gamma, Sigma, Green, A, V_prev] = quantum_solver(G_complete, H, mat, iter, gen, results, mu, system, Vol, method);
+    results = poisson_solver(model, gen.e_0, G, mat.a, real(diag(rho)));
 %     V_diff = norm(V - V_prev) / norm(V + V_prev);
     V = calc_V(G_nodes_by_id(G_complete, channel_id), results);
-    iter_counter = iter_counter + 1
+    iter.counter = iter.counter + 1;
 end
 
 %% Remove additional paths

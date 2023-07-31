@@ -8,5 +8,5 @@ function gen = general_consts()
     gen.hbar = gen.h / (2 * pi); % Reduced Planck constant in eV*s
     gen.eq_fermi_energy = 0;
     gen.kB = 8.6173324 * 1e-5; % Boltzmann constant in eV/K
-    gen.energy_points = 100;
+    gen.channel_id = 0;
 end

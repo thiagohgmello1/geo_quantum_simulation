@@ -17,7 +17,6 @@ function sigma = build_self_energy(G, epsilon, t, energy, eta, stop_cond, system
     
     contact_params = [system.boundaries.dir.params];
     contact_trans_dir = vertcat(contact_params.trans_dir);
-%     contact_pot_offset = vertcat(contact_params.r);
     [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, epsilon, t);
     
     if method == 1

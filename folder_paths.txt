@@ -5,3 +5,4 @@ geometry
 NEGF_functions
 solvers
 plots
+numerical

@@ -1,29 +1,30 @@
-function results = poisson_solver(model, varargin)
+function results = poisson_solver(model, gen, varargin)
 %poisson_solver Solve Poisson equation
 
-    defaultEpsilon = false;
     defaultG = false;
     defaultA = false;
     defaultRho = false;
+    defaultVol = false;
 
     p = inputParser;
     validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
     addRequired(p,'model');
-    addOptional(p, 'epsilon', defaultEpsilon);
+    addRequired(p,'gen');
+    addOptional(p, 'Vol', defaultVol);
     addOptional(p, 'G', defaultG);
     addOptional(p, 'a', defaultA, validScalarPosNum);
     addOptional(p, 'rho', defaultRho);
-    parse(p, model, varargin{:});
+    parse(p, model, gen, varargin{:});
 
-    epsilon = p.Results.epsilon;
     G = p.Results.G;
     a = p.Results.a;
     rho = p.Results.rho;
+    Vol = p.Results.Vol;
 
     if ~a
         results = solvepde(model);
     else
-        recursively_apply_params(-rho, G, model, a);
+        recursively_apply_params(-gen.q * rho / gen.e_0, G, model, a);
         results = solvepde(model);
     end
 end

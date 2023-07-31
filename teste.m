@@ -34,8 +34,6 @@ G_complete.Nodes(findnode(G_complete, '100'),3:5) = new_table_bound;
 G_complete.Nodes(findnode(G_complete, '101'),3:5) = new_table_bound;
 G_complete.Nodes(findnode(G_complete, '102'),3:5) = new_table_bound;
 
-color = [1 0 0];
-bound = true;
 contact_id = 2;
 new_table_bound = table(color, bound, contact_id);
 

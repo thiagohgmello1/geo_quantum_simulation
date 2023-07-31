@@ -113,21 +113,22 @@ function beta = build_beta(G_contact_dir, chosen_candidates, periodic_nodes, t)
         end
     end
     for node=beta_nodes
-%         beta(node{1}(1) == periodic_nodes, node{1}(2) == chosen_candidates) = t;
-        beta(node{1}(2) == chosen_candidates, node{1}(1) == periodic_nodes) = t;
+        % VERIFICAR QUAL BETA UTILIZAR
+        beta(node{1}(1) == periodic_nodes, node{1}(2) == chosen_candidates) = t;
+%         beta(node{1}(2) == chosen_candidates, node{1}(1) == periodic_nodes) = t;
     end
 end
 
 
 function tau = build_tau(G, periodic_nodes, t)
-    channel_nodes = string(table2array(G.Nodes(G.Nodes.contact_id == 0, "Name")));
     G_channel = G_nodes_by_id(G, 0);
+    channel_names = string(G_channel.Nodes.Name);
     rows = [];
     columns = [];
     values = [];
     for i=1:length(periodic_nodes)
         neigs = neighbors(G, periodic_nodes(i));
-        neigs = channel_nodes(matches(channel_nodes, neigs));
+        neigs = channel_names(matches(channel_names, neigs));
         for neig=neigs'
             rows = [rows, findnode(G_channel, neig)];
             columns = [columns, i];

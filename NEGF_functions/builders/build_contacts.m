@@ -1,8 +1,10 @@
-function [Gamma, Sigma] = build_contacts(G, epsilon, t, energy, eta, stop_cond, fermi_levels, a, system, method)
-%build_contact build contact matrices
+function [Gamma, Sigma] = build_contacts(G, mat, iter, energy, fermi_levels, system, method)
+%build_contact build contact scattering (Sigma_in) and self-energy (Sigma) 
+% matrices
 
     Sigma = struct();
-    Sigma.sigma = build_self_energy(G, epsilon, t, energy, eta, stop_cond, system, a, method);
+    Sigma.sigma = build_self_energy(G, mat.epsilon, mat.t, energy, ...
+        iter.conv.eta, iter.conv.self_e_stop, system, mat.a, method);
     Sigma.sigma_in = {};
     Gamma = {};
 

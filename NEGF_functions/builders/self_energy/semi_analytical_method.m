@@ -4,7 +4,8 @@ function [sigma, SGF] = semi_analytical_method(alpha, beta, energy)
     imag_tol = 1e-7;
     sigma = {};
     SGF = {};
-
+    
+    % AJUSTAR SINAL DO VALOR COMPLEXO (ESTÁ TROCADO)
     for i=1:length(alpha)
         [K, S, Fn, len] = build_aux_matrices(alpha{i}, beta{i}, energy);
         [Phi, lambda] = solve_generalized_eig(K);

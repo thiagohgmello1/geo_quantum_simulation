@@ -1,4 +1,4 @@
-function [mu, gen, mat, iter] = set_params(system, gen, mat, iter)
+function [mu, gen, mat, iter] = set_params(system, gen, mat, iter, num)
 %set_params Set all paramas from input data
     
     % Material properties
@@ -6,6 +6,7 @@ function [mu, gen, mat, iter] = set_params(system, gen, mat, iter)
     % mat.n_sides = system.mat_props.n_sides;
     mat.t = system.mat_props.hoppings;
     mat.epsilon = system.mat_props.onsite;
+    
     gen.temp = system.mat_props.temp;
     
 
@@ -24,15 +25,13 @@ function [mu, gen, mat, iter] = set_params(system, gen, mat, iter)
     
     % Energy range: deve ser maior do que o maior u e menor do que o menor
     % u. É usual escolher valores acima e abaixo por 4 * kB * temp
-%     energy_1 = min(mu) - 4 * gen.kB * temp;
-%     energy_n = max(mu) + 4 * gen.kB * temp;
-    energy_1 = -1;
-    energy_n = 1;
-    iter.energy.vec = linspace(energy_1, energy_n, gen.energy_points);
-    iter.energy.delta = (energy_n - energy_1) / gen.energy_points;
+    energy_1 = min(mu) - 10 * gen.kB * gen.temp;
+    energy_n = max(mu) + 10 * gen.kB * gen.temp;
+    iter.energy.vec = linspace(energy_1, energy_n, num.energy_points);
+    iter.energy.delta = (energy_n - energy_1) / num.energy_points;
     iter.energy.start = energy_1;
     iter.energy.stop = energy_n;
-    iter.energy.points = gen.energy_points;
+    iter.energy.points = num.energy_points;
 end
 
 

@@ -66,7 +66,7 @@ default_eq_params.m = 0;
 default_eq_params.d = 0;
 default_eq_params.c = -1;
 default_eq_params.a = 0;
-default_eq_params.f = 1;
+default_eq_params.f = 0;
 
 default_bound_conds.dir = [];
 default_bound_conds.neu = [];

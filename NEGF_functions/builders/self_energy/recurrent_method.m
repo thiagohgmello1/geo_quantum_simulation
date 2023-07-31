@@ -12,12 +12,13 @@ function [sigma, SGF] = recurrent_method(G, alpha, beta, tau, energy, eta, stop_
 end
 
 function g_after = iterate_SGF(alpha, beta, energy, eta, stop_cond)
+    E = energy + 1i*eta;
     I = eye(length(alpha));
     change = inf;
     g_before = zeros(length(I));
     g_after = g_before;
     while change > stop_cond
-        g_aux = (energy + 1i*eta) * I - alpha - beta * g_before *  beta';
+        g_aux = E * I - alpha - beta * g_before *  beta';
         g_after = g_aux \ I;
         change = sum(sum(abs(g_before - g_after))) / (sum(sum(abs(g_after) + abs(g_before))));
         g_after = 0.5 * g_before + 0.5 * g_after;

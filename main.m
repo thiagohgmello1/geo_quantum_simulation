@@ -3,9 +3,13 @@
 clear;
 % close all;
 clc;
-parallel_pool = parpool("Processes");
+if isempty(gcp('nocreate'))
+    myCluster = parcluster('local');
+    parallel_pool = parpool("Processes", myCluster.NumWorkers - 1);
+end
 
-TEST = true;
+
+TEST = false;
 
 change_paths('folder_paths.txt', 1);
 
@@ -15,7 +19,7 @@ constants;
 %% Graph generation
 
 if ~TEST
-    [~, polygon_plot] = read_geometry('inputs/rectangle1.svg', gen.scale, mat.geometry_angle, false);
+    [~, polygon_plot] = read_geometry('inputs/rectangle4.svg', gen.scale, mat.geometry_angle, false);
     [G, G_dir] = set_quantum_geometry(polygon_plot, mat.n_sides, mat.a, [2, 2] * 1e-10, 'angle', mat.angle);
     [geometry, polygon] = create_geometry(G);
 end
@@ -23,7 +27,7 @@ end
 %% input parameters
 
 if TEST
-    load('tests/rectangle_default.mat');
+    load('tests/rectangle_rho_performance.mat');
 else
     model = createpde(1);
     geometryFromEdges(model, geometry);
@@ -41,17 +45,17 @@ Vol = mat.a_cc^2;
 G_complete = attach_contacts(G_contacts, G, mat.a, polygon_plot);
 
 %% Quantum parameters
-hamil = build_H(G_complete, mat, channel_id);
+H = build_H(G_complete, mat, channel_id);
 G_channel = G_nodes_by_id(G_complete, channel_id);
 
-rho_0 = quantum_solver(G_complete, hamil, mat, iter, gen, num, false, mu, system);
-results = poisson_solver(model, gen, Vol, G, mat.a, real(diag(rho_0)));
-V_0 = calc_V(G_channel, results);
-while iter.V_diff > iter.conv.U_tol && iter.counter < iter.conv.max_iter
-    rho = quantum_solver(G_complete, hamil, mat, iter, gen, num, results, mu, system);
-    results = poisson_solver(model, gen, Vol, G, mat.a, real(diag(rho)));
-    V = calc_V(G_channel, results);
-    iter.V_diff = norm(V - V_prev) / norm(V + V_prev);
+V_prev = sparse(zeros(numnodes(G_channel)));
+rho = sparse(zeros(numnodes(G_channel)));
+while iter.V_diff > iter.conv.U_tol && iter.counter <= iter.conv.max_iter
+    V_results = poisson_solver(model, gen, Vol, G, mat.a, real(diag(rho)));
+    V = calc_V(G_channel, V_results);
+    iter.V_diff = max(max(abs(V - V_prev)));
+    V_prev = V;
+    rho = quantum_solver(G_complete, H, mat, iter, gen, num, V_results, mu, system);
     iter.counter = iter.counter + 1;
     disp(iter.counter);
 end

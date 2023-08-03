@@ -6,6 +6,6 @@ function H = build_H(G, mat, contact_id)
     beta_aux = triu(full(adjacency(G)));
     beta_upper = mat.t * beta_aux;
     beta_lower = mat.t' * beta_aux';
-    H = alpha + beta_upper + beta_lower;
+    H = sparse(alpha + beta_upper + beta_lower);
 end
 

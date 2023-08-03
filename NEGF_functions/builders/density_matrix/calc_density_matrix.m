@@ -12,13 +12,15 @@ function rho_eq = calc_rho_eq(G, H, U, system, from_id, mu, gen, iter, mat, num)
     R = calc_R(G, G_channel, H, U, system, mu, gen, iter, mat, num);
     [poles, residues] = calc_poles_residues(num.rho_eq.n_poles);
     chi = mu(from_id) + gen.kB * gen.temp * poles;
-    green_R = calc_green_r(G, G_channel, system, H, U, 1i * R, mu, gen, iter, mat, num);
-    rho_eq = 1 / 2 * 1i * R * green_R;
+    green_r = calc_green_r(G, G_channel, system, H, U, 1i * R, mu, gen, iter, mat, num);
+    rho_eq = 1 / 2 * 1i * R * green_r;
     
+    sum_iter = 0;
     for i=1:num.rho_eq.n_poles
         green_r = calc_green_r(G, G_channel, system, H, U, chi(i), mu, gen, iter, mat, num);
-        rho_eq = rho_eq + imag(2i * gen.kB * gen.temp * residues(i) * green_r);
+        sum_iter = sum_iter + residues(i) * green_r;
     end
+    rho_eq = rho_eq - imag(2i * gen.kB * gen.temp * sum_iter);
 end
 
 

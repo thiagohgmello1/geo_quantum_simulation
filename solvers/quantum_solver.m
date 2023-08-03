@@ -7,8 +7,8 @@ function rho = quantum_solver(G, H, mat, iter, gen, num, results, mu, system)
     else
         V = zeros(numnodes(G_channel));
     end
-    U = V;
-    
+    U = sparse(V);
+
     rho = calc_density_matrix(G, system, H, U, 1, 2, mu, gen, iter, mat, num);
 end
 

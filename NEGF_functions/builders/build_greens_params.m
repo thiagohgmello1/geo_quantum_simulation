@@ -3,7 +3,7 @@ function [Green, A] = build_greens_params(G, energy, H, U, Sigma, eta)
     
     Green = struct();
     n_atoms = numnodes(G);
-    I = eye(n_atoms);
+    I = sparse(eye(n_atoms));
     sigma_in = plus(Sigma.sigma_in{:});
     sigma = plus(Sigma.sigma{:});
     Green.green_r = ((energy + 1i * eta) * I - (H + U) - sigma) \ I;       % Alternative retarded Green's function

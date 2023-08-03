@@ -5,11 +5,12 @@ function num = numerical_consts()
     num = struct();
 
     % R parameters
+    num.R.value = 1e10;
     num.R.precision = 1e-20;
     num.R.max_iter = 100;
 
     num.method = 1;
-    num.energy_points = 1000;
+    num.energy_points = 100;
 
     % rho_neq parameters
     num.rho_neq.npg = 3;

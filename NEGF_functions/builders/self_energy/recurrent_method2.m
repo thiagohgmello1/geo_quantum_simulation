@@ -7,8 +7,8 @@ function [sigma , SGF] = recurrent_method2(G, alpha, beta, tau, energy, eta, sto
     E = energy + 1j * eta;
     
     for i=1:length(contact_ids)
-        SGF{i} = calc_SGF(E, alpha{contact_ids(i)}, beta{contact_ids(i)}, stop_cond);
-        sigma{i} = tau{contact_ids(i)} * SGF{i} * tau{contact_ids(i)}';
+        SGF{i} = sparse(calc_SGF(E, alpha{contact_ids(i)}, beta{contact_ids(i)}, stop_cond));
+        sigma{i} = sparse(tau{contact_ids(i)} * SGF{i} * tau{contact_ids(i)}');
     end
 end
 

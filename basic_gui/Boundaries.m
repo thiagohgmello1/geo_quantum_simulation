@@ -22,7 +22,7 @@ function varargout = Boundaries(varargin)
 
 % Edit the above text to modify the response to help Boundaries
 
-% Last Modified by GUIDE v2.5 30-Mar-2023 13:41:31
+% Last Modified by GUIDE v2.5 01-Aug-2023 14:09:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -64,7 +64,7 @@ end
 % Choose default command line output for Boundaries
 default_eq_params.m = 0;
 default_eq_params.d = 0;
-default_eq_params.c = -1;
+default_eq_params.c = 1;
 default_eq_params.a = 0;
 default_eq_params.f = 0;
 
@@ -91,6 +91,7 @@ handles.output.mat_props = default_mat_props;
 % Update handles structure
 guidata(hObject, handles);
 uiwait();
+
 
 
 % --- Executes when user attempts to close boundaries_cond.

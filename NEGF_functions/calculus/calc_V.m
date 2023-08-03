@@ -5,7 +5,7 @@ function V = calc_V(G, results)
     y = G.Nodes.coord(:,2);
     interpol = interpolateSolution(results, x, y);
     interpol = interpol_out_nodes(G, interpol);
-    V = diag(interpol);
+    V = sparse(diag(interpol));
 end
 
 

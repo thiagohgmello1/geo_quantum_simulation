@@ -1,8 +1,8 @@
-function recursively_apply_params(rho, G, model, a)
+function recursively_apply_params(rho, G, model, a_side)
 %recursively_apply_params apply diferential equation parameters
 
     params = {};
-    fcoeff = @(location, state) calc_f(location, state, rho, G, a);
+    f_coeff = @(location, state) calc_f(location, state, rho, G, a_side);
     m = model.EquationCoefficients.CoefficientAssignments.m;
     d = model.EquationCoefficients.CoefficientAssignments.d;
     c = model.EquationCoefficients.CoefficientAssignments.c;
@@ -12,7 +12,7 @@ function recursively_apply_params(rho, G, model, a)
     params.m = m;
     params.d = d;
     params.c = c;
-    params.f = fcoeff;
+    params.f = f_coeff;
     
     apply_params(model, params);
 end

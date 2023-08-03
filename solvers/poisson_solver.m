@@ -21,10 +21,6 @@ function results = poisson_solver(model, gen, varargin)
     rho = p.Results.rho;
     Vol = p.Results.Vol;
 
-    if ~a
-        results = solvepde(model);
-    else
-        recursively_apply_params(-gen.q * rho / gen.e_0, G, model, a);
-        results = solvepde(model);
-    end
+    recursively_apply_params(-gen.q * rho / (gen.e_0 * Vol), G, model, a);
+    results = solvepde(model);
 end

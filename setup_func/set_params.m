@@ -1,27 +1,10 @@
 function [mu, gen, mat, iter] = set_params(system, gen, mat, iter, num)
 %set_params Set all paramas from input data
     
-    % Material properties
-    % mat.a = system.mat_props.lattice_len;
-    % mat.n_sides = system.mat_props.n_sides;
-    mat.t = system.mat_props.hoppings;
-    mat.epsilon = system.mat_props.onsite;
-    
-    gen.temp = system.mat_props.temp;
-    
-
-    % Convergency properties
-    iter.conv.eta = system.conv_params.eta;
-    iter.conv.self_e_stop = system.conv_params.self_e_conv;
-    iter.conv.U_tol = system.conv_params.delta_U;
-    iter.conv.max_iter = system.conv_params.max_iter;
-    
-
     % cálculo do potencial eletroquímico. É baseado em um valor de 
     % referência do material e na fórmula u2-u1=-qV (u2 é o terminal - e u1
     % é o terminal +)
     mu = set_mu(system, gen.eq_fermi_energy);
-
     
     % Energy range: deve ser maior do que o maior u e menor do que o menor
     % u. É usual escolher valores acima e abaixo por 4 * kB * temp

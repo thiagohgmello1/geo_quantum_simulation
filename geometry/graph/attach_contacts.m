@@ -25,6 +25,7 @@ function [neig_nodes, repeated_node] = get_repeated_nodes(G_contact, G, a)
     contact_coord = vertcat(G_contact.Nodes.coord);
     for i=1:length(contact_coord)
         channel_node = find(all(is_close(contact_coord(i,:), G_coord, 'rtol', 0, 'atol', a / 2), 2));
+        channel_node = findnode(G, string(channel_node));
         if channel_node
             repeated_node = [repeated_node; [G_contact.Nodes.Name(i) string(channel_node)]];
             neig = neighbors(G_contact, G_contact.Nodes.Name(i));

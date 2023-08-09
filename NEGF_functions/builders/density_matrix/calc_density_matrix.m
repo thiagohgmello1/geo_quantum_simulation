@@ -1,23 +1,27 @@
-function rho = calc_density_matrix(G, system, H, U, from_id, to_id, mu, gen, iter, mat, num)
+function rho = calc_density_matrix(G, G_channel, system, H, mu, gen, iter, mat, num , from_id, to_id)
 %UNTITLED Summary of this function goes here
 
-    rho_eq = calc_rho_eq(G, H, U, system, from_id, mu, gen, iter, mat, num);
-    rho_neq = calc_rho_neq(G, system, H, U, from_id, to_id, mu, gen, iter, mat, num);
-    rho = rho_eq + rho_neq;
+    rho_eq_1 = calc_rho_eq(G, G_channel, H, system, from_id, mu, gen, iter, mat, num);
+%     rho_eq_2 = calc_rho_eq(G, G_channel, H, U, system, to_id, mu, gen, iter, mat, num);
+
+    rho_neq_1 = calc_rho_neq(G, G_channel, system, H, from_id, to_id, mu, gen, iter, mat, num);
+%     rho_neq_2 = calc_rho_neq(G, G_channel, system, H, U, to_id, from_id, mu, gen, iter, mat, num);
+%     weight_rho = rho_neq_to ^ 2 / (rho_neq_to ^ 2 + rho_neq_from ^ 2);
+%     rho = 0.5 * (rho_eq_1 + rho_neq_1) + 0.5 * (rho_eq_2 + rho_neq_2);
+    rho = rho_eq_1 + rho_neq_1;
 end
 
 
-function rho_eq = calc_rho_eq(G, H, U, system, from_id, mu, gen, iter, mat, num)
-    G_channel = G_nodes_by_id(G, 0);
-    R = calc_R(G, G_channel, H, U, system, mu, gen, iter, mat, num);
+function rho_eq = calc_rho_eq(G, G_channel, H, system, from_id, mu, gen, iter, mat, num)
+    R = calc_R(G, G_channel, H, system, mu, gen, iter, mat, num);
     [poles, residues] = calc_poles_residues(num.rho_eq.n_poles);
     chi = mu(from_id) + gen.kB * gen.temp * poles;
-    green_r = calc_green_r(G, G_channel, system, H, U, 1i * R, mu, gen, iter, mat, num);
+    green_r = calc_green_r(G, G_channel, system, H, 1i * R, mu, gen, iter, mat, num);
     rho_eq = 1 / 2 * 1i * R * green_r;
     
     sum_iter = 0;
     for i=1:num.rho_eq.n_poles
-        green_r = calc_green_r(G, G_channel, system, H, U, chi(i), mu, gen, iter, mat, num);
+        green_r = calc_green_r(G, G_channel, system, H, chi(i), mu, gen, iter, mat, num);
         sum_iter = sum_iter + residues(i) * green_r;
     end
     rho_eq = rho_eq - imag(2i * gen.kB * gen.temp * sum_iter);
@@ -42,30 +46,26 @@ function [poles, residues] = calc_poles_residues(N_poles)
 end
 
 
-function green_r = calc_green_r(G, G_channel, system, H, U, energy, mu, gen, iter, mat, num)
-    fermi_levels = calc_fermi_levels(energy, mu, gen.temp, gen.kB);
-    [~, Sigma] = build_contacts(G, mat, iter, energy, fermi_levels, system, num.method);
-    [Green, ~] = build_greens_params(G_channel, energy , H, U, Sigma, iter.conv.eta);
-    green_r = Green.green_r;
+function green_r = calc_green_r(G, G_channel, system, H, energy, mu, gen, iter, mat, num)
+    [green, ~] = Green(G, G_channel, system, energy, H, mu, gen, iter, mat, num);
+    green_r = green.green_r;
 end
 
 
-function rho_neq = calc_rho_neq(G, system, H, U, from_id, to_id, mu, gen, iter, mat, num)
+function rho_neq = calc_rho_neq(G, G_channel, system, H, from_id, to_id, mu, gen, iter, mat, num)
     npg = num.rho_neq.npg;
     num_iter = iter.energy.points;
     e_min = iter.energy.start;
     e_max = iter.energy.stop;
-    integ = @(energy) integrand(G, system, H, U, energy, from_id, to_id, mu, gen, iter, mat, num);
+    integ = @(energy) integrand(energy, G, G_channel, system, H, from_id, to_id, mu, gen, iter, mat, num);
     rho_neq = (1 / (2 * pi)) * gauss_int_1d(integ, npg, num_iter, e_min, e_max);
 end
 
 
-function integ = integrand(G, system, H, U, energy, from_id, to_id, mu, gen, iter, mat, num)
-    G_channel = G_nodes_by_id(G, 0);
+function integ = integrand(energy, G, G_channel, system, H, from_id, to_id, mu, gen, iter, mat, num)
     fermi_levels = calc_fermi_levels(energy, mu, gen.temp, gen.kB);
-    [Gamma, Sigma] = build_contacts(G, mat, iter, energy, fermi_levels, system, num.method);
-    [Green, ~] = build_greens_params(G_channel, energy , H, U, Sigma, iter.conv.eta);
-    integ = Green.green_r * Gamma{to_id} * Green.green_a * (fermi_levels(to_id) - fermi_levels(from_id));
+    [green, ~, Gamma, ~] = Green(G, G_channel, system, energy, H, mu, gen, iter, mat, num);
+    integ = green.green_r * Gamma{to_id} * green.green_a * (fermi_levels(to_id) - fermi_levels(from_id));
 end
 
 

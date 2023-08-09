@@ -9,4 +9,7 @@ function gen = general_consts()
     gen.eq_fermi_energy = 0;
     gen.kB = 8.6173324 * 1e-5; % Boltzmann constant in eV/K
     gen.channel_id = 0;
+    gen.temp = 300; % Temperature in K
+    gen.eq_fermi = 0; % equilibrium fermi level
+    gen.V_gate = 0;
 end

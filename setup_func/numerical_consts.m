@@ -6,7 +6,7 @@ function num = numerical_consts()
 
     % R parameters
     num.R.value = 1e10;
-    num.R.precision = 1e-20;
+    num.R.precision = 1e-10;
     num.R.max_iter = 100;
 
     num.method = 1;

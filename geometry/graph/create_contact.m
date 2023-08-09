@@ -22,8 +22,9 @@ function [G_contact, G_contact_dir] = create_contact(G, dir_bound, n_sides, a, v
 
     theta = (n_sides - 2) * pi / (2 * n_sides);
     for node=dir_bound.nodes
-        p0 = G.Nodes(node,:).coord;
-        neig = neighbors(G, node);
+        pos = findnode(G, string(node));
+        p0 = G.Nodes(pos,:).coord;
+        neig = neighbors(G, pos);
         neig = intersect(neig, dir_bound.nodes);
         for neig_node=neig
             p1 = G.Nodes(neig_node,:).coord;

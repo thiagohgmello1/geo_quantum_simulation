@@ -9,5 +9,6 @@ function mat = agnr()
     mat.n_sides = 6;
     mat.geometry_angle = 0;
     mat.sublattice_size = 2;
+    mat.t = -2.8;
+    mat.epsilon = 0;
 end
-

@@ -1,4 +1,4 @@
-function R = calc_R(G, G_channel, H, U, system, mu, gen, iter, mat, num)
+function R = calc_R(G, G_channel, H, system, mu, gen, iter, mat, num)
 %CALC_R calculates R parameter in eV
 
     error = inf;
@@ -12,7 +12,7 @@ function R = calc_R(G, G_channel, H, U, system, mu, gen, iter, mat, num)
             z = 1i * R;
             fermi_levels = calc_fermi_levels(z, mu, gen.temp, gen.kB);
             [~, Sigma] = build_contacts(G, mat, iter, z, fermi_levels, system, num.method);
-            [Green, ~] = build_greens_params(G_channel, z , H, U, Sigma, iter.conv.eta);
+            [Green, ~] = build_greens_params(G_channel, z , H, Sigma, iter.conv.eta);
             mu_0_after = z * Green.green_r;
             error = max(diag(mu_0_before - mu_0_after));
             mu_0_before = mu_0_after;

@@ -1,4 +1,4 @@
-function rho = quantum_solver(G, H, mat, iter, gen, num, results, mu, system)
+function rho = quantum_solver(G, H, mat, iter, gen, num, results, mu, system, from_id, to_id)
 %quantum_solver solve the quantum problem
     
     G_channel = G_nodes_by_id(G, 0);
@@ -9,7 +9,7 @@ function rho = quantum_solver(G, H, mat, iter, gen, num, results, mu, system)
     end
     U = sparse(V);
 
-    rho = calc_density_matrix(G, system, H, U, 1, 2, mu, gen, iter, mat, num);
+    rho = calc_density_matrix(G, G_channel, system, H, U, from_id, to_id, mu, gen, iter, mat, num);
 end
 
 

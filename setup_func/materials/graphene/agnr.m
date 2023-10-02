@@ -11,4 +11,5 @@ function mat = agnr()
     mat.sublattice_size = 2;
     mat.t = -2.8;
     mat.epsilon = 0;
+    mat.coulomb = 1;
 end

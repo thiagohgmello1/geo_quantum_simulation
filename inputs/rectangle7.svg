@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
-   sodipodi:docname="diode8.svg"
+   sodipodi:docname="diode4.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +24,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="32"
-     inkscape:cx="14.40625"
-     inkscape:cy="10.78125"
+     inkscape:zoom="2"
+     inkscape:cx="137.25"
+     inkscape:cy="140"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
@@ -41,7 +41,7 @@
      id="layer1">
     <path
        style="fill:#000000;stroke:#000000;stroke-width:0.279;stroke-linecap:round;stroke-linejoin:round;paint-order:fill markers stroke"
-       d="M 0,0 2,0 2,2.25 3.3,0 5,0 5,5 3.3,5 2,2.75 2,5 0,5 Z"
+       d="M 0,0 6.3,0 6.3,2.2 0,2.2 Z"
        id="path492"
        sodipodi:nodetypes="ccccccccccc" />
   </g>

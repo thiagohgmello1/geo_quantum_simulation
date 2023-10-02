@@ -1,4 +1,4 @@
-function [sigma , SGF] = recurrent_method2(G, alpha, beta, tau, energy, eta, stop_cond)
+function [sigma, SGF] = recurrent_method2(G, alpha, beta, tau, energy, eta, stop_cond)
 
     func_ids = unique([G.Nodes.contact_id]);
     contact_ids = func_ids(func_ids ~= int8(0));

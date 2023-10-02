@@ -1,15 +1,18 @@
-function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, epsilon, t)
+function periodic_structs = def_periodic_structures(G_complete, system, a, epsilon, t)
 %def_periodic_structures calculate periodic structures in contacts
 
     alpha = {};
     beta = {};
     tau = {};
 
-    all_regions = unique(G.Nodes.contact_id);
+    all_regions = unique(G_complete.Nodes.contact_id);
     contact_ids = all_regions(all_regions ~= 0);
+
+    contact_params = [system.boundaries.dir.params];
+    contact_trans_dir = vertcat(contact_params.trans_dir);
     
     for i=1:length(contact_ids)
-        G_contact = create_subregions(G, contact_ids(i,:));
+        G_contact = create_subregions(G_complete, contact_ids(i,:));
         G_matrix = full(adjacency(G_contact));
         G_matrix = triu(G_matrix);
         G_contact_dir = digraph(G_matrix);
@@ -27,8 +30,12 @@ function [alpha, beta, tau] = def_periodic_structures(G, contact_trans_dir, a, e
         G_periodic = subgraph(G_contact, matches(G_contact.Nodes.Name, periodic_nodes));
         alpha{end + 1} = build_alpha(G_periodic, epsilon, t);
         beta{end + 1} = build_beta(G_contact_dir, chosen_candidates, periodic_nodes, t);
-        tau{end + 1} = build_tau(G, periodic_nodes, t);
+        tau{end + 1} = build_tau(G_complete, periodic_nodes, t);
     end
+    periodic_structs = {};
+    periodic_structs.alpha = alpha;
+    periodic_structs.beta = beta;
+    periodic_structs.tau = tau;
 end
 
 
@@ -109,7 +116,7 @@ function beta = build_beta(G_contact_dir, chosen_candidates, periodic_nodes, t)
         preds = predecessors(G_contact_dir, candidate);
         is_periodic = find(ismember(preds, periodic_nodes));
         if is_periodic
-            beta_nodes{end + 1} = [preds(is_periodic) candidate];
+            beta_nodes{end + 1} = [preds(is_periodic)' candidate];
         end
     end
     for node=beta_nodes

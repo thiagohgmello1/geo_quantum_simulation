@@ -6,3 +6,4 @@ NEGF_functions
 solvers
 plots
 numerical
+calculus

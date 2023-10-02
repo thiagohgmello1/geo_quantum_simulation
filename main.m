@@ -19,8 +19,8 @@ constants;
 %% Graph generation
 
 if ~TEST
-    [~, polygon_plot] = read_geometry('inputs/diode8.svg', gen.scale, mat.geometry_angle, false);
-    [G, G_dir] = set_quantum_geometry(polygon_plot, mat.n_sides, mat.a, [2, 2] * 1e-10, 'angle', mat.angle);
+    [~, polygon_plot] = read_geometry('inputs/test.svg', gen.scale, mat.geometry_angle, false);
+    [G, G_dir] = set_quantum_geometry(polygon_plot, mat.n_sides, mat.a, [1, 1] * 1e-9, 'angle', mat.angle);
     [geometry, polygon] = create_geometry(G);
 end
 
@@ -48,10 +48,8 @@ G_complete = attach_contacts(G_contacts, G, mat.a, polygon_plot);
 from_id = 1;
 to_id = 2;
 tic;
-[I, V] = cacl_IV_curve(G_complete, G, system, model, channel_id, mat, iter, num, mu, gen, Vol, from_id, to_id);
+[I, V] = calc_IV_curve(G_complete, system, channel_id, mat, iter, num, mu, gen, from_id, to_id);
 toc;
-[rho, H] = non_eq_solver(G_complete, G, system, model, channel_id, mat, iter, num, mu, gen, Vol, from_id, to_id);
-
 %% Remove additional paths
 
 delete(parallel_pool);

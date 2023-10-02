@@ -25,4 +25,3 @@ function [pol, polygon] = create_poly(id, n_sides, center, side_len, varargin)
     pol.nodes = [];
     pol.is_bound = true;
 end
-

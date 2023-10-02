@@ -26,12 +26,14 @@ function [polys, polys_ids, registered_centers, is_bound] = adjacent_polys(centr
     for i=1:central_pol.n_sides
         repeated = false;
         new_center = central_pol.center + 2 * apotema * vecs(:,i);
+        if abs(norm(new_center - central_pol.center) - 2 * apotema) > 1e-20
+            disp('Wrong center distance');
+        end
         [adjacent_poly, ~] = create_poly(counter_id + 1, poly_n_sides, new_center', a, 'angle', angle);
-        centers_dist = [];
         [~, registered_size] = size(registered_centers);
         for j=1:registered_size
             centers_dist = centers_distance(adjacent_poly.center, registered_centers(:,j));
-            if centers_dist <= 1e-12
+            if centers_dist <= 1e-20
                 repeated = true;
                 break
             end

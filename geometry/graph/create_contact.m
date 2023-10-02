@@ -26,7 +26,7 @@ function [G_contact, G_contact_dir] = create_contact(G, dir_bound, n_sides, a, v
         p0 = G.Nodes(pos,:).coord;
         neig = neighbors(G, pos);
         neig = intersect(neig, dir_bound.nodes);
-        for neig_node=neig
+        for neig_node=neig'
             p1 = G.Nodes(neig_node,:).coord;
             center = G.Nodes(neig_node,:).center;
             new_centers = [new_centers; create_centers(p0, p1, G, center, theta, a)];
@@ -49,10 +49,11 @@ end
 
 
 function centers = create_centers(p0, p1, G, center, theta, a)
+%     [vecs, ~] = perpendicular_vecs(central_pol);
     vec = p0 - p1;
     unit_vec = vec / a;
-    apotema = a / 2 * tan(theta);
-    centers = [center + 2 * apotema * rotate_vec(unit_vec', 90)'; ...
+    apotema = a / (2 * tan(theta/2));
+    centers = [center + 2 * apotema * rotate_vec(unit_vec')'; ...
         center + 2 * apotema * rotate_vec(unit_vec', -90)'];
     centers = centers(check_centers(centers, G, a),:);
 end

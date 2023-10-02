@@ -30,7 +30,7 @@ function [nodes, polys_array] = create_nodes(polys_array, varargin)
         for vertex=1:length(vertices)
             if ~isempty(nodes)
 %                 check_existance = ismembertol(nodes_list, vertices(vertex,:), p.Results.tol, 'ByRows', true);
-                check_existance = all(is_close(nodes_list, vertices(vertex,:), 'rtol', 0, 'atol', 1e-12), 2);
+                check_existance = all(is_close(nodes_list, vertices(vertex,:), 'rtol', 0, 'atol', 1e-20), 2);
             else
                 check_existance = false;
             end

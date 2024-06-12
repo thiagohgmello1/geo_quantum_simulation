@@ -6,5 +6,6 @@ function iter = iterative_consts()
     iter.conv.recurrent_rho = 1;
     iter.conv.max_iter = 200;
     iter.conv.e = 0.05;
+    iter.conv.delta_volt = 1e-4;
     iter.current.v_points = 10;
 end

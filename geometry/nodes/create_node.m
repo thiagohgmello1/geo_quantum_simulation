@@ -3,7 +3,7 @@ function node = create_node(coordinates, id, is_bound, center, center_id)
 
     node = {};
     node.id = id;
-    node.coord = round(coordinates,4,"significant");
+    node.coord = coordinates;
     node.neighbors = [];
     node.is_bound = is_bound;
     node.color = [0, 0, 1];

@@ -11,5 +11,5 @@ function mat = agnr()
     mat.sublattice_size = 2;
     mat.t = -2.8;
     mat.epsilon = 0;
-    mat.coulomb = 1;
+    mat.coulomb = 1; % Simulation (1) or not (0) of Coulomb approximation
 end

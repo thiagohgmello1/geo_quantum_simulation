@@ -4,7 +4,7 @@
 gen = general_consts();
 
 % Material properties
-mat = zgnr();
+mat = agnr();
 
 % Numerical constants
 num = numerical_consts();

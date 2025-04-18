@@ -120,9 +120,7 @@ function beta = build_beta(G_contact_dir, chosen_candidates, periodic_nodes, t)
         end
     end
     for node=beta_nodes
-        % VERIFICAR QUAL BETA UTILIZAR
         beta(node{1}(1) == periodic_nodes, node{1}(2) == chosen_candidates) = t;
-%         beta(node{1}(2) == chosen_candidates, node{1}(1) == periodic_nodes) = t;
     end
 end
 

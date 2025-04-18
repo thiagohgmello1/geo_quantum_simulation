@@ -13,9 +13,9 @@ function num = numerical_consts()
     num.energy_points = 100;
 
     % rho_neq parameters
-    num.rho_neq.npg = 3;
+    num.rho_neq.npg = 3;      % Number of Gauss points for integral calculations
 
     % rho_eq parameters
-    num.rho_eq.n_poles = 60;
+    num.rho_eq.n_poles = 60;  % Number of poles for approximation
 end
 

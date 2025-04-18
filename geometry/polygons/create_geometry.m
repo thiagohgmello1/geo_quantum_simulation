@@ -1,5 +1,5 @@
 function [geometry, geometry_vec] = create_geometry(G)
-%create_geometry create a matrix to build PDE tool geometry
+%create_geometry create a geometry matrix to build PDE tool geometry
 
     H = subgraph(G, G.Nodes(table2array(G.Nodes(:,1)),:).Name);
     cycles = allcycles(H);

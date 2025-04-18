@@ -1,15 +1,16 @@
-function rho = calc_density_matrix(G, G_channel, system, H, mu, gen, iter, mat, num , from_id, to_id, per_structs)
-%UNTITLED Summary of this function goes here
-    rho_eq = calc_rho_eq(G, G_channel, H, system, from_id, mu, gen, iter, mat, num, per_structs);
-    rho_neq = calc_rho_neq(G, G_channel, H, from_id, to_id, mu, gen, iter, num, per_structs);
+function rho = calc_density_matrix(G, G_channel, system, H, mu, gen, iter, mat, num , per_structs)
+%calc_density_matrix Calculate density matrix
+    rho_eq = calc_rho_eq(G, G_channel, H, system, mu, gen, iter, mat, num, per_structs);
+    rho_neq = calc_rho_neq(G, G_channel, H, mu, gen, iter, num, per_structs);
     rho = rho_eq + rho_neq;
 end
 
 
-function rho_eq = calc_rho_eq(G, G_channel, H, system, from_id, mu, gen, iter, mat, num, per_structs)
+function rho_eq = calc_rho_eq(G, G_channel, H, system, mu, gen, iter, mat, num, per_structs)
+% Calculate equilibrium density matrix
     R = calc_R(G, G_channel, H, system, mu, gen, iter, mat, num);
     [poles, residues] = calc_poles_residues(num.rho_eq.n_poles);
-    chi = mu(from_id) + gen.kB * gen.temp * poles;
+    chi = mu(gen.from_id) + gen.kB * gen.temp * poles;
     green_r = calc_green_r(G, G_channel, H, 1i * R, mu, gen, iter, num, per_structs);
     rho_eq = 1 / 2 * 1i * R * green_r;
     
@@ -41,27 +42,28 @@ end
 
 
 function green_r = calc_green_r(G, G_channel, H, energy, mu, gen, iter, num, per_structs)
+% Calculate retarded Green function
     [green, ~] = Green(G, G_channel, energy, H, mu, gen, iter, num, per_structs);
     green_r = green.green_r;
 end
 
 
-function rho_neq = calc_rho_neq(G, G_channel, H, from_id, to_id, mu, gen, iter, num, per_structs)
+function rho_neq = calc_rho_neq(G, G_channel, H, mu, gen, iter, num, per_structs)
+% Calculate non equilibrium density matrix
     npg = num.rho_neq.npg;
     num_iter = iter.energy.points;
     e_min = iter.energy.start;
     e_max = iter.energy.stop;
-    integ = @(energy) integrand(energy, G, G_channel, H, from_id, to_id, mu, gen, iter, num, per_structs);
-%     rho_neq = (1 / (2 * pi)) * gauss_int_1d(integ, npg, num_iter, e_min, e_max);
+    integ = @(energy) integrand(energy, G, G_channel, H, mu, gen, iter, num, per_structs);
     rho_neq = (1 / (2 * pi)) * gauss_int_1d_par(integ, npg, num_iter, e_min, e_max);
 end
 
 
-function integ = integrand(energy, G, G_channel, H, from_id, to_id, mu, gen, iter, num, per_structs)
+function integ = integrand(energy, G, G_channel, H, mu, gen, iter, num, per_structs)
     fermi_levels = calc_fermi_levels(energy, mu, gen.temp, gen.kB);
     [Gamma, Sigma] = build_contacts(G, iter, energy, fermi_levels, num.method, per_structs);
     [green, ~] = build_greens_params(G_channel, energy , H, Sigma, iter.conv.eta);
-    integ = green.green_r * Gamma{to_id} * green.green_a * (fermi_levels(to_id) - fermi_levels(from_id));
+    integ = green.green_r * Gamma{gen.to_id} * green.green_a * (fermi_levels(gen.to_id) - fermi_levels(gen.from_id));
 end
 
 

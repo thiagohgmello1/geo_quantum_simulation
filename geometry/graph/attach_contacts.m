@@ -19,6 +19,7 @@ end
 
 
 function [neig_nodes, repeated_node] = get_repeated_nodes(G_contact, G, a)
+% Get all repeated nodes (identify superposition)
     neig_nodes = [];
     repeated_node = [];
     G_coord = vertcat(G.Nodes.coord);
@@ -37,6 +38,7 @@ end
 
 
 function G_concat = concat_graphs(G_contacts, G)
+% Concatenate graphs
     cont_id_counter = int8(0);
     G_matrix = full(adjacency(G));
     channel_color = [0 0 1];
@@ -74,6 +76,7 @@ end
 
 
 function G = connect_contacts(G_concat, neig_nodes)
+% Connect contacts to channel
     s = strtrim(neig_nodes(:,1));
     t = strtrim(neig_nodes(:,2));
     w = ones(length(s), 1);
@@ -82,6 +85,7 @@ end
 
 
 function G = remove_repeated_nodes(G, repeated_nodes, neig_nodes)
+% Remove all repeated nodes
     contact_nodes = strtrim(repeated_nodes(:,1))';
     channel_nodes = strtrim(repeated_nodes(:,2))';
     for i=1:length(contact_nodes)

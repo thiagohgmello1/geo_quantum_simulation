@@ -1,13 +1,8 @@
 function [mu, gen, mat, iter] = set_params(system, gen, mat, iter, num)
 %set_params Set all paramas from input data
     
-    % cálculo do potencial eletroquímico. É baseado em um valor de 
-    % referência do material e na fórmula u2-u1=-qV (u2 é o terminal - e u1
-    % é o terminal +)
-    mu = set_mu(system, gen.eq_fermi_energy);
+    mu = set_mu(system, gen.chemical_pot);
     
-    % Energy range: deve ser maior do que o maior u e menor do que o menor
-    % u. É usual escolher valores acima e abaixo por 4 * kB * temp
     energy_1 = min(mu) - 10 * gen.kB * gen.temp;
     energy_n = max(mu) + 10 * gen.kB * gen.temp;
     iter.energy.vec = linspace(energy_1, energy_n, num.energy_points);
@@ -18,11 +13,13 @@ function [mu, gen, mat, iter] = set_params(system, gen, mat, iter, num)
 end
 
 
-function mu = set_mu(system, eq_fermi_energy)
+function mu = set_mu(system, chemical_pot)
+% Electrochemical potential calculation
+% [chemical_pot] = eV[chemical_pot] = eV, [mu] = eV
     dir_bounds = [system.boundaries.dir.params];
     mu = zeros(length(dir_bounds), 1);
     for i=1:length(dir_bounds)
-        mu(i) = eq_fermi_energy - dir_bounds(i).r;
+        mu(i) = chemical_pot(i) - dir_bounds(i).r;
     end
 end
 
